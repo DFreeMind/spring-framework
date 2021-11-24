@@ -154,6 +154,8 @@ public class FileSystemXmlApplicationContext extends AbstractXmlApplicationConte
 	 * @see org.springframework.web.context.support.XmlWebApplicationContext#getResourceByPath
 	 */
 	@Override
+	// 实现了 DefaultResourceLoader 中的方法
+	// 返回一个 FileSystemResource
 	protected Resource getResourceByPath(String path) {
 		if (path.startsWith("/")) {
 			path = path.substring(1);

@@ -210,15 +210,20 @@ public abstract class AbstractBeanDefinitionReader implements EnvironmentCapable
 	 * @see #loadBeanDefinitions(org.springframework.core.io.Resource[])
 	 */
 	public int loadBeanDefinitions(String location, @Nullable Set<Resource> actualResources) throws BeanDefinitionStoreException {
+		// luqiudo
+		// 这里取得 ResourceLoader, 使用的是 DefaultResourceLoader
 		ResourceLoader resourceLoader = getResourceLoader();
 		if (resourceLoader == null) {
 			throw new BeanDefinitionStoreException(
 					"Cannot import bean definitions from location [" + location + "]: no ResourceLoader available");
 		}
-
+		// luqiudo
+		// 这里对 Resource的路径模式进行解析，比如我们设定的各种 Ant格式的路径定义，得到需要的
+		// Resource集合，这些 Resource集合指向我们已经定义好的 BeanDefinition信息，可以是多个文件
 		if (resourceLoader instanceof ResourcePatternResolver) {
 			// Resource pattern matching available.
 			try {
+				// 调用 DefaultResourceLoader的 getResource完成具体的 Resource定位
 				Resource[] resources = ((ResourcePatternResolver) resourceLoader).getResources(location);
 				int loadCount = loadBeanDefinitions(resources);
 				if (actualResources != null) {
@@ -237,6 +242,8 @@ public abstract class AbstractBeanDefinitionReader implements EnvironmentCapable
 			}
 		}
 		else {
+			// luqiudo
+			// 调用 DefaultResourceLoader的 getResource完成具体的 Resource定位
 			// Can only load single resources by absolute URL.
 			Resource resource = resourceLoader.getResource(location);
 			int loadCount = loadBeanDefinitions(resource);

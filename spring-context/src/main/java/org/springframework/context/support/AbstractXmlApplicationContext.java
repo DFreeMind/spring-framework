@@ -95,18 +95,6 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 	}
 
 	/**
-	 * Initialize the bean definition reader used for loading the bean
-	 * definitions of this context. Default implementation is empty.
-	 * <p>Can be overridden in subclasses, e.g. for turning off XML validation
-	 * or using a different XmlBeanDefinitionParser implementation.
-	 * @param reader the bean definition reader used by this context
-	 * @see org.springframework.beans.factory.xml.XmlBeanDefinitionReader#setDocumentReaderClass
-	 */
-	protected void initBeanDefinitionReader(XmlBeanDefinitionReader reader) {
-		reader.setValidating(this.validating);
-	}
-
-	/**
 	 * Load the bean definitions with the given XmlBeanDefinitionReader.
 	 * <p>The lifecycle of the bean factory is handled by the {@link #refreshBeanFactory}
 	 * method; hence this method is just supposed to load and/or register bean definitions.
@@ -127,6 +115,18 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 		if (configLocations != null) {
 			reader.loadBeanDefinitions(configLocations);
 		}
+	}
+
+	/**
+	 * Initialize the bean definition reader used for loading the bean
+	 * definitions of this context. Default implementation is empty.
+	 * <p>Can be overridden in subclasses, e.g. for turning off XML validation
+	 * or using a different XmlBeanDefinitionParser implementation.
+	 * @param reader the bean definition reader used by this context
+	 * @see org.springframework.beans.factory.xml.XmlBeanDefinitionReader#setDocumentReaderClass
+	 */
+	protected void initBeanDefinitionReader(XmlBeanDefinitionReader reader) {
+		reader.setValidating(this.validating);
 	}
 
 	/**

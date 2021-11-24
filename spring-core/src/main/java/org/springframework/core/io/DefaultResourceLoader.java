@@ -141,6 +141,8 @@ public class DefaultResourceLoader implements ResourceLoader {
 
 
 	@Override
+	// luqiudo
+	// 对于取得 Resource的具体过程，我们可以看看 DefaultResourceLoader是怎样
 	public Resource getResource(String location) {
 		Assert.notNull(location, "Location must not be null");
 
@@ -154,16 +156,22 @@ public class DefaultResourceLoader implements ResourceLoader {
 		if (location.startsWith("/")) {
 			return getResourceByPath(location);
 		}
+		// 这里处理带有 classpath标识的 Resource
 		else if (location.startsWith(CLASSPATH_URL_PREFIX)) {
 			return new ClassPathResource(location.substring(CLASSPATH_URL_PREFIX.length()), getClassLoader());
 		}
 		else {
 			try {
+				// 这里处理 URL标识的 Resource 定位
 				// Try to parse the location as a URL...
 				URL url = new URL(location);
 				return (ResourceUtils.isFileURL(url) ? new FileUrlResource(url) : new UrlResource(url));
 			}
 			catch (MalformedURLException ex) {
+				// 如果既不是 classpath，也不是 URL标识的 Resource定位，
+				// 则把 getResource的重任交给 getResourceByPath, 这个方法是一个
+				// protected方法，默认的实现是得到一个 ClassPathContextResource，
+				// 这个方法常常会用子类来实现
 				// No URL -> resolve as resource path.
 				return getResourceByPath(location);
 			}

@@ -119,10 +119,13 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	 */
 	@Override
 	protected final void refreshBeanFactory() throws BeansException {
+		// 如果已经有 BeanFactory , 则销毁并关闭 BeanFactory
 		if (hasBeanFactory()) {
 			destroyBeans();
 			closeBeanFactory();
 		}
+		// 这里是创建并设置持有的 DefaultListableBeanFactory 的地方同时调用
+		// loadBeanDefinitions再载入 BeanDefinition的信息
 		try {
 			DefaultListableBeanFactory beanFactory = createBeanFactory();
 			beanFactory.setSerializationId(getId());
@@ -193,6 +196,10 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	 * @see org.springframework.beans.factory.support.DefaultListableBeanFactory#setAllowCircularReferences
 	 * @see org.springframework.beans.factory.support.DefaultListableBeanFactory#setAllowRawInjectionDespiteWrapping
 	 */
+	// 在上下文中创建 DefaultListableBeanFactory的地方，
+	// 而 getInternalParentBeanFactory()的具体实现可以参看
+	// AbstractApplicationContext中的实现，会根据容器已有的双亲 IoC容器的信息来生成
+	// DefaultListableBeanFactory的双亲 IoC 容器
 	protected DefaultListableBeanFactory createBeanFactory() {
 		return new DefaultListableBeanFactory(getInternalParentBeanFactory());
 	}
@@ -229,6 +236,10 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	 * @see org.springframework.beans.factory.support.PropertiesBeanDefinitionReader
 	 * @see org.springframework.beans.factory.xml.XmlBeanDefinitionReader
 	 */
+	// 这里是使用 BeanDefinitionReader载入
+	// Bean定义的地方，因为允许有多种载入方式，虽然用得最多的是
+	// XML定义的形式，这里通过一个抽象函数把具体的实现委托给子类来完
+	// XmlWebApplicationContext -> AbstractBeanDefinitionReader
 	protected abstract void loadBeanDefinitions(DefaultListableBeanFactory beanFactory)
 			throws BeansException, IOException;
 
