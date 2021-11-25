@@ -300,6 +300,8 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * @throws BeanDefinitionStoreException in case of loading or parsing errors
 	 */
 	@Override
+	// luqiudo
+	// 这里是调用的入口, 来源于 AbstractBeanDefinitionReader
 	public int loadBeanDefinitions(Resource resource) throws BeanDefinitionStoreException {
 		return loadBeanDefinitions(new EncodedResource(resource));
 	}
@@ -311,6 +313,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * @return the number of bean definitions found
 	 * @throws BeanDefinitionStoreException in case of loading or parsing errors
 	 */
+	// 载入 XML 形式的 BeanDefinition 的地方
 	public int loadBeanDefinitions(EncodedResource encodedResource) throws BeanDefinitionStoreException {
 		Assert.notNull(encodedResource, "EncodedResource must not be null");
 		if (logger.isInfoEnabled()) {
@@ -326,6 +329,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 			throw new BeanDefinitionStoreException(
 					"Detected cyclic loading of " + encodedResource + " - check your import definitions!");
 		}
+		// 得到 XML 文件, 并得到 IO 的 InputSource准备进行读取
 		try {
 			InputStream inputStream = encodedResource.getResource().getInputStream();
 			try {
@@ -333,6 +337,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 				if (encodedResource.getEncoding() != null) {
 					inputSource.setEncoding(encodedResource.getEncoding());
 				}
+				// 具体的读取读入过程
 				return doLoadBeanDefinitions(inputSource, encodedResource.getResource());
 			}
 			finally {
@@ -385,10 +390,16 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * @see #doLoadDocument
 	 * @see #registerBeanDefinitions
 	 */
+	// luqiudo
+	// 从特定的 XML 文件中实际载入 BeanDefinition
 	protected int doLoadBeanDefinitions(InputSource inputSource, Resource resource)
 			throws BeanDefinitionStoreException {
 		try {
+			// 这里取得 XML文件的 Document 对象，这个解析过程是由 documentLoader 完成,
+			// 这个 documentLoader 是 DefaultDocumentLoader,在定义 documentLoader 的地方创建
 			Document doc = doLoadDocument(inputSource, resource);
+			// 这里启动的是对 BeanDefinition解析的详细过程，这个解析会使用到 Spring 的 Bean配置规则
+			// 具体的过程是在 BeanDefinitionDocumentReader 中完成
 			return registerBeanDefinitions(doc, resource);
 		}
 		catch (BeanDefinitionStoreException ex) {
@@ -503,8 +514,19 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * @see BeanDefinitionDocumentReader#registerBeanDefinitions
 	 */
 	public int registerBeanDefinitions(Document doc, Resource resource) throws BeanDefinitionStoreException {
+		// luqiudo
+		// 这里得到 BeanDefinitionDocumentReader 来对 XML的 BeanDefinition 进行解析
 		BeanDefinitionDocumentReader documentReader = createBeanDefinitionDocumentReader();
 		int countBefore = getRegistry().getBeanDefinitionCount();
+		// 具体的解析过程在这个 registerBeanDefinitions 中完成
+		// 按照 Spring 的 Bean 规则进行解析, registerBeanDefinitions 为接口方法
+		// 具体的实现在 DefaultBeanDefinitionDocumentReader 中
+		// 过程为 registerBeanDefinitions -> registerBeanDefinitions(BeanDefinitionDocumentReader)
+		// -> registerBeanDefinitions (DefaultBeanDefinitionDocumentReader)
+		// -> doRegisterBeanDefinitions (DefaultBeanDefinitionDocumentReader)
+		// -> parseBeanDefinitions (DefaultBeanDefinitionDocumentReader)
+		// -> parseDefaultElement (DefaultBeanDefinitionDocumentReader)
+		// -> processBeanDefinition (DefaultBeanDefinitionDocumentReader)
 		documentReader.registerBeanDefinitions(doc, createReaderContext(resource));
 		return getRegistry().getBeanDefinitionCount() - countBefore;
 	}

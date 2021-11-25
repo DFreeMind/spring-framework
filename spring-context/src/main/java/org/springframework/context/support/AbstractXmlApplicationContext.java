@@ -78,19 +78,27 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 	 * @see #loadBeanDefinitions
 	 */
 	@Override
+	// luqiudo
+	// 实现了 AbstractRefreshableApplicationContext 中的 loadBeanDefinitions
 	protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throws BeansException, IOException {
+		// 创建 xmlBeanDefinitionReader，并通过回调设置到 BeanFactory中去，
+		// 这里使用的也是 DefaultListableBeanFactory
 		// Create a new XmlBeanDefinitionReader for the given BeanFactory.
 		XmlBeanDefinitionReader beanDefinitionReader = new XmlBeanDefinitionReader(beanFactory);
 
 		// Configure the bean definition reader with this context's
 		// resource loading environment.
 		beanDefinitionReader.setEnvironment(this.getEnvironment());
+		// 这里设置 XmlBeanDefinitionReader，为 XmlBeanDefinitionReader 配 ResourceLoader，
+		// 因为 DefaultResourceLoader是父类，所以 this可以直接被使用
 		beanDefinitionReader.setResourceLoader(this);
 		beanDefinitionReader.setEntityResolver(new ResourceEntityResolver(this));
 
+		// 启动 Bean 信息的载入
 		// Allow a subclass to provide custom initialization of the reader,
 		// then proceed with actually loading the bean definitions.
 		initBeanDefinitionReader(beanDefinitionReader);
+		// 通过 XmlBeanDefinitionReader 读取
 		loadBeanDefinitions(beanDefinitionReader);
 	}
 
@@ -107,10 +115,15 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 	 * @see #getResourcePatternResolver
 	 */
 	protected void loadBeanDefinitions(XmlBeanDefinitionReader reader) throws BeansException, IOException {
+		// luqiudo
+		// 以 Resource 的方式获取配置文件的资源位置
 		Resource[] configResources = getConfigResources();
 		if (configResources != null) {
+			// 该方法定义在父类 AbstractBeanDefinitionReader 中
+			// 为 BeanDefinition 的载入做准备
 			reader.loadBeanDefinitions(configResources);
 		}
+		// 以 String 的形式获取配置文件的位置
 		String[] configLocations = getConfigLocations();
 		if (configLocations != null) {
 			reader.loadBeanDefinitions(configLocations);

@@ -181,9 +181,14 @@ public abstract class AbstractBeanDefinitionReader implements EnvironmentCapable
 
 	@Override
 	public int loadBeanDefinitions(Resource... resources) throws BeanDefinitionStoreException {
+		// luqiudo
+		// 如果 Resource为空，则停止 BeanDefinition的载入
 		Assert.notNull(resources, "Resource array must not be null");
+		// 启动载入 BeanDefinition 的过程 ,这个过程会遍历整个 Resource 集合所包含的 BeanDefinition 信息
 		int counter = 0;
 		for (Resource resource : resources) {
+			// 该方法是一个接口方法, AbstractBeanDefinitionReader 中没有实现,
+			// 实现在具体的类中, 如 xml 类型的 XmlBeanDefinitionReader
 			counter += loadBeanDefinitions(resource);
 		}
 		return counter;

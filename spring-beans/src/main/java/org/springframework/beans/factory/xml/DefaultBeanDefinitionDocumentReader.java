@@ -301,11 +301,19 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	 * Process the given bean element, parsing the bean definition
 	 * and registering it with the registry.
 	 */
+	// luqiudo
+	// 这里是处理 BeanDefinition 的地方，具体的处理委托给 BeanDefinitionParserDelegate 来完成，
+	// ele对应在 Spring BeanDefinition中定义的 XML 元素
 	protected void processBeanDefinition(Element ele, BeanDefinitionParserDelegate delegate) {
+		// BeanDefinitionHolder 是 BeanDefinition 对象的封装类，封装了 BeanDefinition
+		// Bean 的名字和别名。用它来完成向 IoC容器注册.
+		// 得到这个 BeanDefinitionHolder 就意味着 BeanDefinition 是通过 BeanDefinitionParserDelegate 对
+		// XML元素的信息按照 Spring 的 Bean规则进行解析得到的
 		BeanDefinitionHolder bdHolder = delegate.parseBeanDefinitionElement(ele);
 		if (bdHolder != null) {
 			bdHolder = delegate.decorateBeanDefinitionIfRequired(ele, bdHolder);
 			try {
+				// 向 IoC容器注册解析得到 BeanDefinition
 				// Register the final decorated instance.
 				BeanDefinitionReaderUtils.registerBeanDefinition(bdHolder, getReaderContext().getRegistry());
 			}
@@ -313,6 +321,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 				getReaderContext().error("Failed to register bean definition with name '" +
 						bdHolder.getBeanName() + "'", ele, ex);
 			}
+			// 在 BeanDefinition向 IoC 容器注册完以后，发送消息
 			// Send registration event.
 			getReaderContext().fireComponentRegistered(new BeanComponentDefinition(bdHolder));
 		}
