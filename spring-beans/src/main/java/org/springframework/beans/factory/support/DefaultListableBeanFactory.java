@@ -782,6 +782,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	// Implementation of BeanDefinitionRegistry interface
 	//---------------------------------------------------------------------
 
+	// luqiudo
+	// BeanDefinition 注册实现
 	@Override
 	public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)
 			throws BeanDefinitionStoreException {
@@ -798,7 +800,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 						"Validation of bean definition failed", ex);
 			}
 		}
-
+		// 检查 IoC 容器中是否已经有同名的 BeanDefinition
+		// 根据配置检查是否允许有同名的 BeanDefinition 存在
 		BeanDefinition existingDefinition = this.beanDefinitionMap.get(beanName);
 		if (existingDefinition != null) {
 			if (!isAllowBeanDefinitionOverriding()) {
@@ -831,7 +834,10 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			this.beanDefinitionMap.put(beanName, beanDefinition);
 		}
 		else {
+			// 正常注册 BeanDefinition 的过程，把 Bean 的名字存入到 beanDefinitionNames 的同时，
+			// 把 beanName 作为 Map 的 key,把 beanDefinition作为 value 存入到 IoC 容器持有的 beanDefinitionMap 中去
 			if (hasBeanCreationStarted()) {
+				// synchronized 保证数据的一致性
 				// Cannot modify startup-time collection elements anymore (for stable iteration)
 				synchronized (this.beanDefinitionMap) {
 					this.beanDefinitionMap.put(beanName, beanDefinition);
