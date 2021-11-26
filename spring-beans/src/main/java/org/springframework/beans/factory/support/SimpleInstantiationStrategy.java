@@ -41,7 +41,7 @@ import org.springframework.util.StringUtils;
  * @author Juergen Hoeller
  * @since 1.1
  */
-// luqiudo
+// LUQIUDO
 // 默认生成 Bean 的策略
 public class SimpleInstantiationStrategy implements InstantiationStrategy {
 

@@ -78,7 +78,7 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 	 * @see #loadBeanDefinitions
 	 */
 	@Override
-	// luqiudo
+	// LUQIUDO
 	// 实现了 AbstractRefreshableApplicationContext 中的 loadBeanDefinitions
 	protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throws BeansException, IOException {
 		// 创建 xmlBeanDefinitionReader，并通过回调设置到 BeanFactory中去，
@@ -115,7 +115,7 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 	 * @see #getResourcePatternResolver
 	 */
 	protected void loadBeanDefinitions(XmlBeanDefinitionReader reader) throws BeansException, IOException {
-		// luqiudo
+		// LUQIUDO
 		// 以 Resource 的方式获取配置文件的资源位置
 		Resource[] configResources = getConfigResources();
 		if (configResources != null) {

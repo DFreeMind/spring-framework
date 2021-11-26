@@ -460,7 +460,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 		RootBeanDefinition mbdToUse = mbd;
 
-		//luqiudo
+		//LUQIUDO
 		// 判断需要创建的 Bean 是否可以实例化，这个类是否可以通过类装载器来载入
 		// Make sure bean class is actually resolved at this point, and
 		// clone the bean definition in case of a dynamically resolved Class
@@ -527,7 +527,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 * @see #instantiateUsingFactoryMethod
 	 * @see #autowireConstructor
 	 */
-	// luqiudo
+	// LUQIUDO
 	// Bean 的具体生成
 	protected Object doCreateBean(String beanName, RootBeanDefinition mbd, @Nullable Object[] args)
 			throws BeanCreationException {
@@ -1091,7 +1091,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 * @see #autowireConstructor
 	 * @see #instantiateBean
 	 */
-	// luqiudo
+	// LUQIUDO
 	// Bean 中所包含的 Java 对象生成
 	protected BeanWrapper createBeanInstance(String beanName, RootBeanDefinition mbd, @Nullable Object[] args) {
 		// 确认需要创建的 Bean 实例的类可以实例化
@@ -1232,7 +1232,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 * @param mbd the bean definition for the bean
 	 * @return a BeanWrapper for the new instance
 	 */
-	// luqiudo
+	// LUQIUDO
 	// 最常见的实例化过程
 	protected BeanWrapper instantiateBean(String beanName, RootBeanDefinition mbd) {
 		try {

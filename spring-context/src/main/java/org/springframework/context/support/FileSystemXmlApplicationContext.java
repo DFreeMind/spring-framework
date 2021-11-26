@@ -138,7 +138,7 @@ public class FileSystemXmlApplicationContext extends AbstractXmlApplicationConte
 
 		super(parent);
 		setConfigLocations(configLocations);
-		// luqiudo
+		// LUQIUDO
 		// 这里调用容器的 refresh，是载入 BeanDefinition 的入口
 		// 具体在 AbstractApplicationContext 中可以找到
 		// 它详细地描述了整个 ApplicationContext 的初始化过程

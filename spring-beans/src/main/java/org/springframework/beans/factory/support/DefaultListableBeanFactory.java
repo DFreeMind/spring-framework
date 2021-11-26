@@ -782,7 +782,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	// Implementation of BeanDefinitionRegistry interface
 	//---------------------------------------------------------------------
 
-	// luqiudo
+	// LUQIUDO
 	// BeanDefinition 注册实现
 	@Override
 	public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)

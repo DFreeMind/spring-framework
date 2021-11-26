@@ -194,7 +194,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	// Implementation of BeanFactory interface
 	//---------------------------------------------------------------------
 
-	// luqiudo
+	// LUQIUDO
 	// 这里是对 BeanFactory 接口的实现，比如 getBean 接口方法
 	// 这些 getBean 接口方法最终是通过调用 doGetBean 来实现的
 	@Override
@@ -238,7 +238,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @return an instance of the bean
 	 * @throws BeansException if the bean could not be created
 	 */
-	// luqiudo
+	// LUQIUDO
 	// 实际取得 Bean 的地方，也是触发依赖注入发生的地方
 	@SuppressWarnings("unchecked")
 	protected <T> T doGetBean(
@@ -1799,7 +1799,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @throws BeanCreationException if the bean could not be created
 	 */
 	// 该方法的实现为 AbstractAutowireCapableBeanFactory
-	// stepinto
+	// STEPINTO
 	protected abstract Object createBean(String beanName, RootBeanDefinition mbd, @Nullable Object[] args)
 			throws BeanCreationException;
 

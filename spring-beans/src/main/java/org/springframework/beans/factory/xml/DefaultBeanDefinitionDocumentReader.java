@@ -145,7 +145,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		}
 
 		preProcessXml(root);
-		// stepinto
+		// STEPINTO
 		parseBeanDefinitions(root, this.delegate);
 		postProcessXml(root);
 
@@ -173,7 +173,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 				if (node instanceof Element) {
 					Element ele = (Element) node;
 					if (delegate.isDefaultNamespace(ele)) {
-						// stepinto
+						// STEPINTO
 						parseDefaultElement(ele, delegate);
 					}
 					else {
@@ -195,7 +195,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 			processAliasRegistration(ele);
 		}
 		else if (delegate.nodeNameEquals(ele, BEAN_ELEMENT)) {
-			// stepinto
+			// STEPINTO
 			processBeanDefinition(ele, delegate);
 		}
 		else if (delegate.nodeNameEquals(ele, NESTED_BEANS_ELEMENT)) {
@@ -304,7 +304,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	 * Process the given bean element, parsing the bean definition
 	 * and registering it with the registry.
 	 */
-	// luqiudo
+	// LUQIUDO
 	// 这里是处理 BeanDefinition 的地方，具体的处理委托给 BeanDefinitionParserDelegate 来完成，
 	// ele对应在 Spring BeanDefinition中定义的 XML 元素
 	protected void processBeanDefinition(Element ele, BeanDefinitionParserDelegate delegate) {
@@ -317,7 +317,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 			bdHolder = delegate.decorateBeanDefinitionIfRequired(ele, bdHolder);
 			try {
 				// 向 IoC容器注册解析得到 BeanDefinition
-				// stepinto
+				// STEPINTO
 				// Register the final decorated instance.
 				BeanDefinitionReaderUtils.registerBeanDefinition(bdHolder, getReaderContext().getRegistry());
 			}

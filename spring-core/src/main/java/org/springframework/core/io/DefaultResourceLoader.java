@@ -141,7 +141,7 @@ public class DefaultResourceLoader implements ResourceLoader {
 
 
 	@Override
-	// luqiudo
+	// LUQIUDO
 	// 对于取得 Resource的具体过程，我们可以看看 DefaultResourceLoader是怎样
 	public Resource getResource(String location) {
 		Assert.notNull(location, "Location must not be null");

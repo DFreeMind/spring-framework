@@ -497,7 +497,7 @@ public class BeanDefinitionParserDelegate {
 	 * Parse the bean definition itself, without regard to name or aliases. May return
 	 * {@code null} if problems occurred during the parsing of the bean definition.
 	 */
-	// luqiudo
+	// LUQIUDO
 	// BeanDefinition 定义元素的处理
 	@Nullable
 	public AbstractBeanDefinition parseBeanDefinitionElement(
@@ -532,7 +532,7 @@ public class BeanDefinitionParserDelegate {
 			//解析＜bean＞的构造函数设置
 			parseConstructorArgElements(ele, bd);
 			// 解析＜bean＞的 property 设
-			// stepinto
+			// STEPINTO
 			parsePropertyElements(ele, bd);
 			parseQualifierElements(ele, bd);
 
@@ -715,7 +715,7 @@ public class BeanDefinitionParserDelegate {
 	/**
 	 * Parse property sub-elements of the given bean element.
 	 */
-	// luqiudo
+	// LUQIUDO
 	// 对指定 Bean元素的 property子元素集合进行解析
 	public void parsePropertyElements(Element beanEle, BeanDefinition bd) {
 		// 遍历所有 Bean元素下定义的 property元素
@@ -724,7 +724,7 @@ public class BeanDefinitionParserDelegate {
 			Node node = nl.item(i);
 			if (isCandidateElement(node) && nodeNameEquals(node, PROPERTY_ELEMENT)) {
 				// 判断是 property元素后对该 property元素进行解析的过程
-				// stepinto
+				// STEPINTO
 				parsePropertyElement((Element) node, bd);
 			}
 		}
@@ -853,7 +853,7 @@ public class BeanDefinitionParserDelegate {
 	 * Parse a property element.
 	 */
 	public void parsePropertyElement(Element ele, BeanDefinition bd) {
-		// luqiudo
+		// LUQIUDO
 		// 取得 property的名字
 		String propertyName = ele.getAttribute(NAME_ATTRIBUTE);
 		if (!StringUtils.hasLength(propertyName)) {
@@ -870,7 +870,7 @@ public class BeanDefinitionParserDelegate {
 			}
 			// 这里是解析 property 值的地方，返回的对象对应对 Bean 定义的 property 属性设置的解析结果，
 			// 这个解析结果会封装到 PropertyValue 对象中，然后设置到 BeanDefinitionHolder 中
-			// stepinto
+			// STEPINTO
 			Object val = parsePropertyValue(ele, bd, propertyName);
 			PropertyValue pv = new PropertyValue(propertyName, val);
 			parseMetaElements(ele, pv);
@@ -928,7 +928,7 @@ public class BeanDefinitionParserDelegate {
 	 * Get the value of a property element. May be a list etc.
 	 * Also used for constructor arguments, "propertyName" being null in this case.
 	 */
-	// luqiudo
+	// LUQIUDO
 	// 取得 property 元素的值，也许是一个 list 或其他
 	@Nullable
 	public Object parsePropertyValue(Element ele, BeanDefinition bd, @Nullable String propertyName) {
@@ -981,7 +981,7 @@ public class BeanDefinitionParserDelegate {
 			return valueHolder;
 		}
 		// 如果还有子元素，触发对子元素的解析
-		// stepinto
+		// STEPINTO
 		else if (subElement != null) {
 			return parsePropertySubElement(subElement, bd);
 		}
@@ -1011,7 +1011,7 @@ public class BeanDefinitionParserDelegate {
 	 * @param defaultValueType the default type (class name) for any
 	 * {@code <value>} tag that might be created
 	 */
-	// luqiudo
+	// LUQIUDO
 	// 对属性元素进行解析
 	@Nullable
 	public Object parsePropertySubElement(Element ele, @Nullable BeanDefinition bd, @Nullable String defaultValueType) {
@@ -1063,7 +1063,7 @@ public class BeanDefinitionParserDelegate {
 			return parseArrayElement(ele, bd);
 		}
 		// List 的具体解析过程
-		// stepinto
+		// STEPINTO
 		else if (nodeNameEquals(ele, LIST_ELEMENT)) {
 			return parseListElement(ele, bd);
 		}
@@ -1172,7 +1172,7 @@ public class BeanDefinitionParserDelegate {
 		target.setElementTypeName(defaultElementType);
 		target.setMergeEnabled(parseMergeAttribute(collectionEle));
 		// 具体的 List 元素的解析过程
-		// stepinto
+		// STEPINTO
 		parseCollectionElements(nl, target, bd, defaultElementType);
 		return target;
 	}
@@ -1193,7 +1193,7 @@ public class BeanDefinitionParserDelegate {
 
 	protected void parseCollectionElements(
 			NodeList elementNodes, Collection<Object> target, @Nullable BeanDefinition bd, String defaultElementType) {
-		// luqiudo
+		// LUQIUDO
 		// 遍历所有的元素节点，并判断其类型是否为 Element
 		for (int i = 0; i < elementNodes.getLength(); i++) {
 			Node node = elementNodes.item(i);
