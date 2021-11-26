@@ -194,6 +194,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	// Implementation of BeanFactory interface
 	//---------------------------------------------------------------------
 
+	// luqiudo
+	// 这里是对 BeanFactory 接口的实现，比如 getBean 接口方法
+	// 这些 getBean 接口方法最终是通过调用 doGetBean 来实现的
 	@Override
 	public Object getBean(String name) throws BeansException {
 		return doGetBean(name, null, null, false);
@@ -235,6 +238,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @return an instance of the bean
 	 * @throws BeansException if the bean could not be created
 	 */
+	// luqiudo
+	// 实际取得 Bean 的地方，也是触发依赖注入发生的地方
 	@SuppressWarnings("unchecked")
 	protected <T> T doGetBean(
 			String name, @Nullable Class<T> requiredType, @Nullable Object[] args, boolean typeCheckOnly)
@@ -243,6 +248,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		String beanName = transformedBeanName(name);
 		Object bean;
 
+		// 先从缓存中取得 Bean ,处理那些已经被创建过的单例模式的 Bean，
+		// 对这种 Bean 的请求不需要重复地创建
 		// Eagerly check singleton cache for manually registered singletons.
 		Object sharedInstance = getSingleton(beanName);
 		if (sharedInstance != null && args == null) {
@@ -255,6 +262,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					logger.debug("Returning cached instance of singleton bean '" + beanName + "'");
 				}
 			}
+			// 这里的 getObjectForBeanInstance 完成的是 FactoryBean的相关处理，
+			// 以取得 FactoryBean 的生产结果 , BeanFactory 和 FactoryBean 理解他们的不同
 			bean = getObjectForBeanInstance(sharedInstance, name, beanName, null);
 		}
 
@@ -265,6 +274,10 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				throw new BeanCurrentlyInCreationException(beanName);
 			}
 
+			// 这里对 IoC 容器中的 BeanDefintion 是否存在进行检查，
+			// 检查是否能在当前的 BeanFactory 中取得需要的 Bean。
+			// 如果在当前的工厂中取不到，则到双亲 BeanFactory 中去取；
+			// 如果当前的双亲工厂取不到，那就顺着双亲 BeanFactory 链一直向上查找
 			// Check if bean definition exists in this factory.
 			BeanFactory parentBeanFactory = getParentBeanFactory();
 			if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
@@ -289,9 +302,12 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			}
 
 			try {
+				// 根据 Bean 的名称获取 BeanDefinition
 				RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
 				checkMergedBeanDefinition(mbd, beanName, args);
 
+				// 获取当前 Bean 的所有依赖 Bean，这样会触发 getBean 的递归调用，
+				// 直到取到一个没有任何依赖的 Bean 为止
 				// Guarantee initialization of beans that the current bean depends on.
 				String[] dependsOn = mbd.getDependsOn();
 				if (dependsOn != null) {
@@ -311,10 +327,13 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					}
 				}
 
+				// 这里通过调用 createBean 方法创建 Singleton bean 的实例，
+				// 这里有一个回调函数 getObject，会在 getSingleton 中调用 ObjectFactory 的 createBean
 				// Create bean instance.
 				if (mbd.isSingleton()) {
 					sharedInstance = getSingleton(beanName, () -> {
 						try {
+							// STEPINTO
 							return createBean(beanName, mbd, args);
 						}
 						catch (BeansException ex) {
@@ -328,6 +347,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					bean = getObjectForBeanInstance(sharedInstance, name, beanName, mbd);
 				}
 
+				// 创建 prototype bean 的地方
 				else if (mbd.isPrototype()) {
 					// It's a prototype -> create a new instance.
 					Object prototypeInstance = null;
@@ -376,6 +396,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			}
 		}
 
+		// 这里对创建的 Bean 进行类型检查，如果没有问题，就返回这个新创建的 Bean，
+		// 这个 Bean 已经是包含了依赖关系的 Bean
 		// Check if required type matches the type of the actual bean instance.
 		if (requiredType != null && !requiredType.isInstance(bean)) {
 			try {
@@ -1776,6 +1798,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @return a new instance of the bean
 	 * @throws BeanCreationException if the bean could not be created
 	 */
+	// 该方法的实现为 AbstractAutowireCapableBeanFactory
+	// stepinto
 	protected abstract Object createBean(String beanName, RootBeanDefinition mbd, @Nullable Object[] args)
 			throws BeanCreationException;
 

@@ -113,6 +113,7 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 		 * Ignored if the {@code ctor} parameter is {@code null}.
 		 * @return new instance of the dynamically generated subclass
 		 */
+		// LUQIUDO
 		public Object instantiate(@Nullable Constructor<?> ctor, @Nullable Object... args) {
 			Class<?> subclass = createEnhancedSubclass(this.beanDefinition);
 			Object instance;
@@ -142,7 +143,9 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 		 * Create an enhanced subclass of the bean class for the provided bean
 		 * definition, using CGLIB.
 		 */
+		// LUQIUDO
 		private Class<?> createEnhancedSubclass(RootBeanDefinition beanDefinition) {
+			// 生成 Enhancer 对象，并为 Enhancer 对象设置生成 Java 对象的参数，比如基类、回调方法等
 			Enhancer enhancer = new Enhancer();
 			enhancer.setSuperclass(beanDefinition.getBeanClass());
 			enhancer.setNamingPolicy(SpringNamingPolicy.INSTANCE);
