@@ -103,12 +103,19 @@ class BeanDefinitionValueResolver {
 	 */
 	@Nullable
 	public Object resolveValueIfNecessary(Object argName, @Nullable Object value) {
+		// LUQIUDO
+		// 对 Bean Reference 的解析过程
+		// RuntimeBeanReference是在对 BeanDefinition 进行解析时生成的数据对象
 		// We must check each value to see whether it requires a runtime reference
 		// to another bean to be resolved.
 		if (value instanceof RuntimeBeanReference) {
 			RuntimeBeanReference ref = (RuntimeBeanReference) value;
+			// LUQIUDO
+			// STEPINTO
+			// 对 Bean Reference 的解析过程
 			return resolveReference(argName, ref);
 		}
+		// 对运行时 Bean Name 的解析
 		else if (value instanceof RuntimeBeanNameReference) {
 			String refName = ((RuntimeBeanNameReference) value).getBeanName();
 			refName = String.valueOf(doEvaluate(refName));
@@ -118,11 +125,13 @@ class BeanDefinitionValueResolver {
 			}
 			return refName;
 		}
+		// 对 BeanDefinitionHolder 的解析
 		else if (value instanceof BeanDefinitionHolder) {
 			// Resolve BeanDefinitionHolder: contains BeanDefinition with name and aliases.
 			BeanDefinitionHolder bdHolder = (BeanDefinitionHolder) value;
 			return resolveInnerBean(argName, bdHolder.getBeanName(), bdHolder.getBeanDefinition());
 		}
+		// 对 BeanDefintion 的解析
 		else if (value instanceof BeanDefinition) {
 			// Resolve plain BeanDefinition, without contained name: use dummy name.
 			BeanDefinition bd = (BeanDefinition) value;
@@ -130,6 +139,7 @@ class BeanDefinitionValueResolver {
 					ObjectUtils.getIdentityHexString(bd);
 			return resolveInnerBean(argName, innerBeanName, bd);
 		}
+		// 对 Array 进行解析
 		else if (value instanceof ManagedArray) {
 			// May need to resolve contained runtime references.
 			ManagedArray array = (ManagedArray) value;
@@ -154,18 +164,22 @@ class BeanDefinitionValueResolver {
 			}
 			return resolveManagedArray(argName, (List<?>) value, elementType);
 		}
+		// 对 List 进行解析
 		else if (value instanceof ManagedList) {
 			// May need to resolve contained runtime references.
 			return resolveManagedList(argName, (List<?>) value);
 		}
+		// 对 Set 进行解析
 		else if (value instanceof ManagedSet) {
 			// May need to resolve contained runtime references.
 			return resolveManagedSet(argName, (Set<?>) value);
 		}
+		// 对 Map 进行解析
 		else if (value instanceof ManagedMap) {
 			// May need to resolve contained runtime references.
 			return resolveManagedMap(argName, (Map<?, ?>) value);
 		}
+		// 对 Property 进行解析
 		else if (value instanceof ManagedProperties) {
 			Properties original = (Properties) value;
 			Properties copy = new Properties();
@@ -284,12 +298,17 @@ class BeanDefinitionValueResolver {
 	/**
 	 * Resolve a reference to another bean in the factory.
 	 */
+	// LUQIUDO
+	// 对 Bean Reference 的解析
 	@Nullable
 	private Object resolveReference(Object argName, RuntimeBeanReference ref) {
 		try {
 			Object bean;
+			// 从 RuntimeBeanReference 取得 reference 的名字，
+			// 这个 RuntimeBeanReference 是在载入 BeanDefinition 时根据配置生成的
 			String refName = ref.getBeanName();
 			refName = String.valueOf(doEvaluate(refName));
+			// 如果 ref 是在双亲 IoC 容器中，那就到双亲 IoC 容器中去获取
 			if (ref.isToParent()) {
 				if (this.beanFactory.getParentBeanFactory() == null) {
 					throw new BeanCreationException(
@@ -297,8 +316,11 @@ class BeanDefinitionValueResolver {
 							"Can't resolve reference to bean '" + refName +
 									"' in parent factory: no parent factory available");
 				}
+				// 去父 IoC 容器中获取
 				bean = this.beanFactory.getParentBeanFactory().getBean(refName);
 			}
+			// 在当前 IoC 容器中去获取 Bean，这里会触发一个 getBean 的过程，
+			// 如果依赖注入没有发生，这里会触发相应的依赖注入的发生
 			else {
 				bean = this.beanFactory.getBean(refName);
 				this.beanFactory.registerDependentBean(refName, this.beanName);

@@ -269,18 +269,24 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 			setPropertyValue(tokens, pv);
 		}
 	}
-
+	// BeanWrapper 完成 Bean 属性的注入
 	protected void setPropertyValue(PropertyTokenHolder tokens, PropertyValue pv) throws BeansException {
+		// Spring 3.x 的实现分数到两个函数中实现
 		if (tokens.keys != null) {
+			// tokens 含有 keys 的实现
+			// STEPINTO
 			processKeyedProperty(tokens, pv);
 		}
 		else {
+			// 非集合类注入方法
+			// STEPINTO
 			processLocalProperty(tokens, pv);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	private void processKeyedProperty(PropertyTokenHolder tokens, PropertyValue pv) {
+		// Spring 3.x 的部分代码在 getPropertyHoldingValue 中实现
 		Object propValue = getPropertyHoldingValue(tokens);
 		PropertyHandler ph = getLocalPropertyHandler(tokens.actualName);
 		if (ph == null) {
@@ -289,7 +295,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 		}
 		Assert.state(tokens.keys != null, "No token keys");
 		String lastKey = tokens.keys[tokens.keys.length - 1];
-
+		// 对 Array 进行注入
 		if (propValue.getClass().isArray()) {
 			Class<?> requiredType = propValue.getClass().getComponentType();
 			int arrayIndex = Integer.parseInt(lastKey);
@@ -315,7 +321,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 						"Invalid array index in property path '" + tokens.canonicalName + "'", ex);
 			}
 		}
-
+		// 对 List 进行注入
 		else if (propValue instanceof List) {
 			Class<?> requiredType = ph.getCollectionType(tokens.keys.length);
 			List<Object> list = (List<Object>) propValue;
@@ -351,7 +357,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 				}
 			}
 		}
-
+		// 对 Map 进行注入
 		else if (propValue instanceof Map) {
 			Class<?> mapKeyType = ph.getMapKeyType(tokens.keys.length);
 			Class<?> mapValueType = ph.getMapValueType(tokens.keys.length);
@@ -381,6 +387,8 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 	private Object getPropertyHoldingValue(PropertyTokenHolder tokens) {
 		// Apply indexes and map keys: fetch value for all keys but the last one.
 		Assert.state(tokens.keys != null, "No token keys");
+		// LUQIUDO
+		// 设置 tokens 的索引和 keys
 		PropertyTokenHolder getterTokens = new PropertyTokenHolder(tokens.actualName);
 		getterTokens.canonicalName = tokens.canonicalName;
 		getterTokens.keys = new String[tokens.keys.length - 1];
@@ -388,6 +396,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 
 		Object propValue;
 		try {
+			// 取得 Bean 中对注入对象的引用, 如 Array/List/Map/Set
 			propValue = getPropertyValue(getterTokens);
 		}
 		catch (NotReadablePropertyException ex) {
@@ -412,7 +421,10 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 		return propValue;
 	}
 
+	// LUQIUDO
+	// 非集合类实现
 	private void processLocalProperty(PropertyTokenHolder tokens, PropertyValue pv) {
+		// 实现在 BeanWrapperImpl 中, 返回一个 BeanPropertyHandler
 		PropertyHandler ph = getLocalPropertyHandler(tokens.actualName);
 		if (ph == null || !ph.isWritable()) {
 			if (pv.isOptional()) {

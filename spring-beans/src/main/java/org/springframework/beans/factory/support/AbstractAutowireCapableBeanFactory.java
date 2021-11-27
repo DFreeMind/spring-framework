@@ -494,7 +494,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		try {
-			// 创建 Bean 的调用
+			// 创建 Bean 的调用, 不同的 Bean 创建会有不同的策略
+			// 不同类型的 Bean 创建也是在此方法中进行
 			// STEPINTO
 			Object beanInstance = doCreateBean(beanName, mbdToUse, args);
 			if (logger.isDebugEnabled()) {
@@ -541,6 +542,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 		// 创建 Bean 的地方，由 createBeanInstance 来完成
 		if (instanceWrapper == null) {
+			// 不同的 Bean 有不同的创建策略, 具体参见此方法的实现
 			// STEPINTO
 			instanceWrapper = createBeanInstance(beanName, mbd, args);
 		}
@@ -1129,6 +1131,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				return autowireConstructor(beanName, mbd, null, null);
 			}
 			else {
+				// 完成属性填充, Bean 的依赖注入 (BeanWrapperImpl 中完成)
+				// STEPINTO
 				return instantiateBean(beanName, mbd);
 			}
 		}
@@ -1307,6 +1311,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 * @param bw the BeanWrapper with bean instance
 	 */
 	protected void populateBean(String beanName, RootBeanDefinition mbd, @Nullable BeanWrapper bw) {
+		// 下面的两个大的 IF 语句咋 3.x 中放在了
+		// PropertyValues pvs = (mbd.hasPropertyValues() ? mbd.getPropertyValues() : null);
+		// 之后
 		if (bw == null) {
 			if (mbd.hasPropertyValues()) {
 				throw new BeanCreationException(
@@ -1332,11 +1339,15 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			}
 		}
 
+		// LUQIUDO
+		// 这里取得在 BeanDefinition 中设置的 property 值，这些 property 来自对 BeanDefinition的解析
 		PropertyValues pvs = (mbd.hasPropertyValues() ? mbd.getPropertyValues() : null);
 
+		// 开撕依赖注入过程, 先处理 Autowire 类型的注入
 		int resolvedAutowireMode = mbd.getResolvedAutowireMode();
 		if (resolvedAutowireMode == AUTOWIRE_BY_NAME || resolvedAutowireMode == AUTOWIRE_BY_TYPE) {
 			MutablePropertyValues newPvs = new MutablePropertyValues(pvs);
+			// 对 Autowire 注入处理,根据 Bean 的名字或者类型完成 Bean 的装配
 			// Add property values based on autowire by name if applicable.
 			if (resolvedAutowireMode == AUTOWIRE_BY_NAME) {
 				autowireByName(beanName, mbd, bw, newPvs);
@@ -1373,6 +1384,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		if (pvs != null) {
+			// 对属性进行注入
+			// STEPINTO
 			applyPropertyValues(beanName, mbd, bw, pvs);
 		}
 	}
@@ -1574,6 +1587,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 * @param bw the BeanWrapper wrapping the target object
 	 * @param pvs the new property values
 	 */
+	// LUQIUDO
+	// 通过 applyPropertyValues 了解具体的对属性行进行解析然后注入的过程
 	protected void applyPropertyValues(String beanName, BeanDefinition mbd, BeanWrapper bw, PropertyValues pvs) {
 		if (pvs.isEmpty()) {
 			return;
@@ -1609,8 +1624,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		if (converter == null) {
 			converter = bw;
 		}
+		// 这个 BeanDefinitionValueResolver 对 BeanDefinition的解析是在这个 valueResolver中完成的
 		BeanDefinitionValueResolver valueResolver = new BeanDefinitionValueResolver(this, beanName, mbd, converter);
 
+		// 为解析值创建一个副本，副本的数据将会被注入到 Bean 中
 		// Create a deep copy, resolving any references for values.
 		List<PropertyValue> deepCopy = new ArrayList<>(original.size());
 		boolean resolveNecessary = false;
@@ -1621,6 +1638,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			else {
 				String propertyName = pv.getName();
 				Object originalValue = pv.getValue();
+				// 使用 BeanDefinitionResolver 对 BeanDefinition 进行解析,然后注入到 property 中
+				// 该方法最后到 BeanDefinitionValueResolver 的 resolveReference 中
+				// STEPINTO
 				Object resolvedValue = valueResolver.resolveValueIfNecessary(pv, originalValue);
 				Object convertedValue = resolvedValue;
 				boolean convertible = bw.isWritableProperty(propertyName) &&
@@ -1654,6 +1674,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		// Set our (possibly massaged) deep copy.
 		try {
+			// 依赖注入发生的地方, 会在 BeanWrapperImpl 中完成
+			// setPropertyValues(PerpertyAccessor) -> setPropertyValues(AbstractPropertyAccessor)
+			// -> setPropertyValue(AbstractPropertyAccessor)
+			// -> setPropertyValue(AbstractNestablePropertyAccessor)
+			// ->
+			// STEPINTO
 			bw.setPropertyValues(new MutablePropertyValues(deepCopy));
 		}
 		catch (BeansException ex) {
