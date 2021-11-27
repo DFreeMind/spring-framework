@@ -524,6 +524,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			// Tell the subclass to refresh the internal bean factory.
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
+			// 准备工作, 为容器配置 ClassLoader, PropertyEditor, BeanPostProcessor
+			// 为容器的启动做好必要的准备工作
 			// Prepare the bean factory for use in this context.
 			prepareBeanFactory(beanFactory);
 
@@ -556,7 +558,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				// Check for listener beans and register them.
 				registerListeners();
 
-				// 实例化所有的 non-lazy-init) 单列
+				// 实例化所有的 non-lazy-init) 单单例
 				// Instantiate all remaining (non-lazy-init) singletons.
 				finishBeanFactoryInitialization(beanFactory);
 
@@ -1012,6 +1014,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * @see #close()
 	 * @see #registerShutdownHook()
 	 */
+	//LUQIUDO
+	// 容器关闭
+	// 先发出容器关闭的信号，然后将 Bean 逐个关闭，最后关闭容器自身
 	protected void doClose() {
 		// Check whether an actual close attempt is necessary...
 		if (this.active.get() && this.closed.compareAndSet(false, true)) {
@@ -1039,6 +1044,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				}
 			}
 
+			// 对 Bean 进行销毁操作
 			// Destroy all cached singletons in the context's BeanFactory.
 			destroyBeans();
 

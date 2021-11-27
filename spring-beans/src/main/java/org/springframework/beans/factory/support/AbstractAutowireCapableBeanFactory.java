@@ -586,6 +586,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			// 通过给定的 BeanWrapper 填充属性
 			// STEPINTO
 			populateBean(beanName, mbd, instanceWrapper);
+			// 初始化 Bean 方法
+			// STEPINTO
 			exposedObject = initializeBean(beanName, exposedObject, mbd);
 		}
 		catch (Throwable ex) {
@@ -1731,6 +1733,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			}, getAccessControlContext());
 		}
 		else {
+			// Spring 3.x 中的部分代码在此方法中
+			// 通过相关的 Aware 接口实现, 把相关的 BeanName,
+			// BeanClassLoader 以及 BeanFactory 注入到 Bean 中去
+			// STEPINTO
 			invokeAwareMethods(beanName, bean);
 		}
 
@@ -1740,6 +1746,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		try {
+			// 初始化方法
+			// STEPINTO
 			invokeInitMethods(beanName, wrappedBean, mbd);
 		}
 		catch (Throwable ex) {
@@ -1754,6 +1762,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		return wrappedBean;
 	}
 
+	// LUQIUDO
 	private void invokeAwareMethods(String beanName, Object bean) {
 		if (bean instanceof Aware) {
 			if (bean instanceof BeanNameAware) {
@@ -1803,15 +1812,20 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				}
 			}
 			else {
+				// LUQIUDO
+				// 使用 afterPropertiesSet 需要实现 InitializingBean 接口
 				((InitializingBean) bean).afterPropertiesSet();
 			}
 		}
 
 		if (mbd != null && bean.getClass() != NullBean.class) {
+			// 判断 Bean 是否配置了 initMethod ,如果有,则通过 invokeCustomInitMethod
+			// 方法直接调用, 最终完成 Bean 的初始化
 			String initMethodName = mbd.getInitMethodName();
 			if (StringUtils.hasLength(initMethodName) &&
 					!(isInitializingBean && "afterPropertiesSet".equals(initMethodName)) &&
 					!mbd.isExternallyManagedInitMethod(initMethodName)) {
+				// STEPINTO
 				invokeCustomInitMethod(beanName, bean, mbd);
 			}
 		}
@@ -1824,11 +1838,15 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 * methods with arguments.
 	 * @see #invokeInitMethods
 	 */
+	// LUQIUDO
+	// 使用用户定义的
 	protected void invokeCustomInitMethod(String beanName, Object bean, RootBeanDefinition mbd)
 			throws Throwable {
 
+		// 得到用户定义的 initMethod
 		String initMethodName = mbd.getInitMethodName();
 		Assert.state(initMethodName != null, "No init method set");
+		// 获取的 Method 对象
 		Method initMethod = (mbd.isNonPublicAccessAllowed() ?
 				BeanUtils.findMethod(bean.getClass(), initMethodName) :
 				ClassUtils.getMethodIfAvailable(bean.getClass(), initMethodName));

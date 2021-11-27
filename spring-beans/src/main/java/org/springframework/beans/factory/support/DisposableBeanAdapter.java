@@ -233,10 +233,13 @@ class DisposableBeanAdapter implements DisposableBean, Runnable, Serializable {
 		destroy();
 	}
 
+	// LUQIUDO
+	// 对 Bean 进行销毁操作
 	@Override
 	public void destroy() {
 		if (!CollectionUtils.isEmpty(this.beanPostProcessors)) {
 			for (DestructionAwareBeanPostProcessor processor : this.beanPostProcessors) {
+				// 调用后置处理器
 				processor.postProcessBeforeDestruction(this.bean, this.beanName);
 			}
 		}
@@ -253,6 +256,7 @@ class DisposableBeanAdapter implements DisposableBean, Runnable, Serializable {
 					}, this.acc);
 				}
 				else {
+					// 调用 Bean 的处理方法
 					((DisposableBean) this.bean).destroy();
 				}
 			}
@@ -268,6 +272,7 @@ class DisposableBeanAdapter implements DisposableBean, Runnable, Serializable {
 		}
 
 		if (this.destroyMethod != null) {
+			// 调用 Bean 的自定义销毁方法
 			invokeCustomDestroyMethod(this.destroyMethod);
 		}
 		else if (this.destroyMethodName != null) {
