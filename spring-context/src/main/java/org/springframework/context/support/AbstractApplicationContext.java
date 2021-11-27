@@ -558,7 +558,11 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				// Check for listener beans and register them.
 				registerListeners();
 
-				// 实例化所有的 non-lazy-init) 单单例
+				// 1.实例化所有的 (non-lazy-init) 单例
+				// 2.这里是对 lazy-init属性进行处理的地方
+				// 从 lazy-init 配置角度分析, 实际的处理类为
+				// DefaultListableBeanFactory.preInstantiateSingletons
+				// STEPINTO
 				// Instantiate all remaining (non-lazy-init) singletons.
 				finishBeanFactoryInitialization(beanFactory);
 
@@ -865,6 +869,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * Finish the initialization of this context's bean factory,
 	 * initializing all remaining singleton beans.
 	 */
+	// LUQIUDO
+	// 在 finishBeanFactoryInitialization中进行具体的处理过程
 	protected void finishBeanFactoryInitialization(ConfigurableListableBeanFactory beanFactory) {
 		// Initialize conversion service for this context.
 		if (beanFactory.containsBean(CONVERSION_SERVICE_BEAN_NAME) &&
@@ -892,6 +898,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		// Allow for caching all bean definition metadata, not expecting further changes.
 		beanFactory.freezeConfiguration();
 
+		// 这里调用的是 BeanFactory的 preInstantiateSingletons，
+		// 这个方法是由 DefaultListableBeanFactory实现的
 		// Instantiate all remaining (non-lazy-init) singletons.
 		beanFactory.preInstantiateSingletons();
 	}

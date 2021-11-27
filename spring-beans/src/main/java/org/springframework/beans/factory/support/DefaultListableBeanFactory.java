@@ -721,6 +721,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	}
 
 	@Override
+	// LUQIUDO
+	// 在 DefaultListableBeanFactory 中的 preInstantiateSingletons 是这样的
 	public void preInstantiateSingletons() throws BeansException {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Pre-instantiating singletons in " + this);
@@ -730,6 +732,11 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		// While this may not be part of the regular factory bootstrap, it does otherwise work fine.
 		List<String> beanNames = new ArrayList<>(this.beanDefinitionNames);
 
+		// 在这里就开始 getBean，也就是去触发 Bean的依赖注入
+		// 这个 getBean和前面分析的触发依赖注入的过程是一样的，只是发生的地方不同。
+		// 如果不设置 lazy-init属性，那么这个依赖注入是发生在容器初始化结束以后。第一次向容器发出 getBean时，
+		// 如果设置了 lazy-init属性，那么依赖注入发生在容器初始化的过程中，会对 beanDefinitionMap中所有的 Bean进行依赖注入，
+		// 这样在初始化过程结束以后，容器执行 getBean得到的就是已经准备好的 Bean，不需要进行依赖注入
 		// Trigger initialization of all non-lazy singleton beans...
 		for (String beanName : beanNames) {
 			RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
