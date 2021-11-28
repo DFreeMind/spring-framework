@@ -37,6 +37,12 @@ import java.util.regex.PatternSyntaxException;
  * @author Rob Harrop
  * @since 1.1
  */
+
+/**
+ * LUQIUDO
+ * 基类为 StaticMethodMathcerPointcut
+ * 设置的 MethodMatcher 为 StaticMethodMatcher
+ */
 @SuppressWarnings("serial")
 public class JdkRegexpMethodPointcut extends AbstractRegexpMethodPointcut {
 
@@ -71,6 +77,8 @@ public class JdkRegexpMethodPointcut extends AbstractRegexpMethodPointcut {
 	 * Returns {@code true} if the {@link Pattern} at index {@code patternIndex}
 	 * matches the supplied candidate {@code String}.
 	 */
+	// LUQIUDO
+	// MethodMatcher 中的方法
 	@Override
 	protected boolean matches(String pattern, int patternIndex) {
 		Matcher matcher = this.compiledPatterns[patternIndex].matcher(pattern);

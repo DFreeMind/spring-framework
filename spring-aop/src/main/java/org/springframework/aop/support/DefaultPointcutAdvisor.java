@@ -35,6 +35,11 @@ import org.springframework.lang.Nullable;
  * @see #setPointcut
  * @see #setAdvice
  */
+
+/**
+ * LUQIUDO
+ * Advisor 的一个具体实现
+ */
 @SuppressWarnings("serial")
 public class DefaultPointcutAdvisor extends AbstractGenericPointcutAdvisor implements Serializable {
 

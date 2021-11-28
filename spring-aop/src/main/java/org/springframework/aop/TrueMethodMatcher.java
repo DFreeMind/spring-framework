@@ -26,6 +26,11 @@ import org.springframework.lang.Nullable;
  *
  * @author Rod Johnson
  */
+
+/**
+ * LUQIUDO
+ * TruePointcut 的 MethodMatcher 的实现
+ */
 @SuppressWarnings("serial")
 class TrueMethodMatcher implements MethodMatcher, Serializable {
 

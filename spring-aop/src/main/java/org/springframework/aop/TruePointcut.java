@@ -23,6 +23,10 @@ import java.io.Serializable;
  *
  * @author Rod Johnson
  */
+
+/**
+ * LUQIUDO
+ */
 @SuppressWarnings("serial")
 class TruePointcut implements Pointcut, Serializable {
 
@@ -31,6 +35,8 @@ class TruePointcut implements Pointcut, Serializable {
 	/**
 	 * Enforce Singleton pattern.
 	 */
+	// 这里是单件模式的实现特点，设置私有的构造函数，使其不能直接被实例化，
+	// 并设置一个静态的类变量来保证该实例是唯一的
 	private TruePointcut() {
 	}
 

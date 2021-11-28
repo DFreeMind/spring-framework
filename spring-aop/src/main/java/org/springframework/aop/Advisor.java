@@ -33,6 +33,12 @@ import org.aopalliance.aop.Advice;
  * @author Rod Johnson
  * @author Juergen Hoeller
  */
+
+/**
+ * LUQIUDO
+ * 将 Advice 和 PointCut 结合起来
+ * 参考 DefaultPoincutAdvisor
+ */
 public interface Advisor {
 
 	/**
