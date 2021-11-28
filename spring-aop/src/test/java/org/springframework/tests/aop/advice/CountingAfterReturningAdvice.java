@@ -25,6 +25,7 @@ import org.springframework.aop.AfterReturningAdvice;
  *
  * @author Rod Johnson
  */
+// LUQIUDO AfterReturingAdvice 示例
 @SuppressWarnings("serial")
 public class CountingAfterReturningAdvice extends MethodCounter implements AfterReturningAdvice {
 

@@ -29,15 +29,21 @@ import java.util.HashMap;
 @SuppressWarnings("serial")
 public class MethodCounter implements Serializable {
 
+	//LUQIUDO
+	// BeforeAdvice 使用案例
+	// 这个 HashMap用来存储方法名和调用次数的键值对
 	/** Method name --> count, does not understand overloading */
 	private HashMap<String, Integer> map = new HashMap<>();
 
+	// 所有的调用次数，不管是什么方法名
 	private int allCount;
 
+	// CountingBeforeAdvice的调用入口
 	protected void count(Method m) {
 		count(m.getName());
 	}
 
+	// 根据目标方法的方法名统计调用次数
 	protected void count(String methodName) {
 		Integer i = map.get(methodName);
 		i = (i != null) ? new Integer(i.intValue() + 1) : new Integer(1);
@@ -45,11 +51,12 @@ public class MethodCounter implements Serializable {
 		++allCount;
 	}
 
+	// 根据方法名取得调用的次数
 	public int getCalls(String methodName) {
 		Integer i = map.get(methodName);
 		return (i != null ? i.intValue() : 0);
 	}
-
+	// 取得所有的方法调用次数
 	public int getCalls() {
 		return allCount;
 	}

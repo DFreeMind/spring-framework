@@ -27,6 +27,8 @@ import org.aopalliance.aop.Advice;
  * @author Rod Johnson
  * @see AfterAdvice
  */
+// LUQIUDO
+// MethodBeforeAvdice
 public interface BeforeAdvice extends Advice {
 
 }

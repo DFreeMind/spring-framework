@@ -25,11 +25,18 @@ import org.springframework.aop.MethodBeforeAdvice;
  *
  * @author Rod Johnson
  */
+
+/**
+ * 	LUQIUDO
+ * 	BeforeAdvice 的使用方式
+ */
 @SuppressWarnings("serial")
 public class CountingBeforeAdvice extends MethodCounter implements MethodBeforeAdvice {
 
+	// 实现 before回调接口，这是接口 MethodBeforeAdvice的要求
 	@Override
 	public void before(Method m, Object[] args, Object target) throws Throwable {
+		// STEPINTO
 		count(m);
 	}
 

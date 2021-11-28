@@ -26,6 +26,7 @@ import org.aopalliance.aop.Advice;
  * @since 2.0.3
  * @see BeforeAdvice
  */
+// LUQIUDO
 public interface AfterAdvice extends Advice {
 
 }

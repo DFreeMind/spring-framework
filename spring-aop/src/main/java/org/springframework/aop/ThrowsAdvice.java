@@ -48,6 +48,9 @@ package org.springframework.aop;
  * @see AfterReturningAdvice
  * @see MethodBeforeAdvice
  */
+// LUQIUDO
+// 没有执行需要试下的方法
+// 参考 CountingThrowsAdvice 案例
 public interface ThrowsAdvice extends AfterAdvice {
 
 }

@@ -29,6 +29,11 @@ import org.springframework.lang.Nullable;
  *
  * @author Rod Johnson
  */
+
+/**
+ * LUQIUDO
+ * @see CountingBeforeAdvice 测试实现
+ */
 public interface MethodBeforeAdvice extends BeforeAdvice {
 
 	/**

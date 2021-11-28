@@ -1969,6 +1969,8 @@ public abstract class AbstractAopProxyTests {
 	}
 
 
+	// LUQIUDO
+	// ThrowsAdvice 案例˚
 	@SuppressWarnings("serial")
 	public static class CountingThrowsAdvice extends MethodCounter implements ThrowsAdvice {
 
