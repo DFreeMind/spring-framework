@@ -583,11 +583,15 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		// Initialize the bean instance.
 		Object exposedObject = bean;
 		try {
-			// 通过给定的 BeanWrapper 填充属性
+			// 通过给定的 BeanWrapper 填充属性, autowring 也在此完成
 			// STEPINTO
+			// STEPINTO 分析 autowiring
 			populateBean(beanName, mbd, instanceWrapper);
 			// 初始化 Bean 方法
-			// STEPINTO
+			// 在完成对 Bean 的生成和依赖注入以后，开始对 Bean进行初始化，
+			// 这个初始化过程包含了对后置处理器 postProcessBeforeInitialization 的回调
+			// STEPINTO 初始化
+			// STEPINTO 分析 BeanPostProcessor
 			exposedObject = initializeBean(beanName, exposedObject, mbd);
 		}
 		catch (Throwable ex) {
@@ -1352,6 +1356,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			// 对 Autowire 注入处理,根据 Bean 的名字或者类型完成 Bean 的装配
 			// Add property values based on autowire by name if applicable.
 			if (resolvedAutowireMode == AUTOWIRE_BY_NAME) {
+				// STEPINTO 分析依据 Bean 名称完成自动注入
 				autowireByName(beanName, mbd, bw, newPvs);
 			}
 			// Add property values based on autowire by type if applicable.
@@ -1362,6 +1367,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		boolean hasInstAwareBpps = hasInstantiationAwareBeanPostProcessors();
+		// 对依赖进行检查
 		boolean needsDepCheck = (mbd.getDependencyCheck() != AbstractBeanDefinition.DEPENDENCY_CHECK_NONE);
 
 		if (hasInstAwareBpps || needsDepCheck) {
@@ -1381,6 +1387,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				}
 			}
 			if (needsDepCheck) {
+				// 对依赖进行检查
+				// STEPINTO
 				checkDependencies(beanName, mbd, filteredPds, pvs);
 			}
 		}
@@ -1407,6 +1415,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		String[] propertyNames = unsatisfiedNonSimpleProperties(mbd, bw);
 		for (String propertyName : propertyNames) {
 			if (containsBean(propertyName)) {
+				// LUQIUDO
+				// 使用取得的当前 Bean的属性名作为 Bean的名字，向 IoC容器索取 Bean
+				// 然后把从容器得到的 Bean设置到当前 Bean的属性中去
 				Object bean = getBean(propertyName);
 				pvs.add(propertyName, bean);
 				registerDependentBean(propertyName, beanName);
@@ -1725,6 +1736,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 * @see #invokeInitMethods
 	 * @see #applyBeanPostProcessorsAfterInitialization
 	 */
+	// LUQIUDO
+	// 初始化
+	//Bean实例，调用在容器的回调方法和 Bean的初始化方法
 	protected Object initializeBean(String beanName, Object bean, @Nullable RootBeanDefinition mbd) {
 		if (System.getSecurityManager() != null) {
 			AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
@@ -1742,11 +1756,14 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		Object wrappedBean = bean;
 		if (mbd == null || !mbd.isSynthetic()) {
+			// 对后置处理器 BeanPostProcessors的 postProcessBeforeInitialization 的回调方法的调用
 			wrappedBean = applyBeanPostProcessorsBeforeInitialization(wrappedBean, beanName);
 		}
 
 		try {
 			// 初始化方法
+			// 调用 Bean的初始化方法，这个初始化方法是在 BeanDefinition中通过定义 init-method 属性指定的同时，
+			// 如果 Bean实现了 InitializingBean接口，那么这个 Bean的 afterPropertiesSet实现也会被调用
 			// STEPINTO
 			invokeInitMethods(beanName, wrappedBean, mbd);
 		}
@@ -1756,6 +1773,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 					beanName, "Invocation of init method failed", ex);
 		}
 		if (mbd == null || !mbd.isSynthetic()) {
+			// 对后置处理器 BeanPostProcessors的 postProcessAfterInitialization 的回调方法的调用
 			wrappedBean = applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName);
 		}
 

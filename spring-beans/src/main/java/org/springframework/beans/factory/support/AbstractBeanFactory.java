@@ -264,6 +264,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			}
 			// 这里的 getObjectForBeanInstance 完成的是 FactoryBean的相关处理，
 			// 以取得 FactoryBean 的生产结果 , BeanFactory 和 FactoryBean 理解他们的不同
+			// STEPINTO 分析 FactoryBean 的实现
 			bean = getObjectForBeanInstance(sharedInstance, name, beanName, null);
 		}
 
@@ -1650,6 +1651,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	protected Object getObjectForBeanInstance(
 			Object beanInstance, String name, String beanName, @Nullable RootBeanDefinition mbd) {
 
+		// LUQIUDO
+		// 如果这里不是对 FactoryBean的调用，那么结束处理
 		// Don't let calling code try to dereference the factory if the bean isn't a factory.
 		if (BeanFactoryUtils.isFactoryDereference(name)) {
 			if (beanInstance instanceof NullBean) {
@@ -1679,6 +1682,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				mbd = getMergedLocalBeanDefinition(beanName);
 			}
 			boolean synthetic = (mbd != null && mbd.isSynthetic());
+			// 从 FactoryBean 中得到 Bean
+			// STEPINTO
 			object = getObjectFromFactoryBean(factory, beanName, !synthetic);
 		}
 		return object;

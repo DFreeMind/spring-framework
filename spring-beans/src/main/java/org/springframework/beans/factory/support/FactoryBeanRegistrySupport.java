@@ -132,6 +132,8 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 			}
 		}
 		else {
+			// LUQIUDO
+			// STEPINTO
 			Object object = doGetObjectFromFactoryBean(factory, beanName);
 			if (shouldPostProcess) {
 				try {
@@ -166,6 +168,8 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 				}
 			}
 			else {
+				// LUQIUDO
+				// 这里调用 factory的 getObject方法来从 FactoryBean中得到 Bean
 				object = factory.getObject();
 			}
 		}
