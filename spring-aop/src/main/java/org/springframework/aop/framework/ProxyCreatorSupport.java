@@ -29,6 +29,11 @@ import org.springframework.util.Assert;
  * @since 2.0.3
  * @see #createAopProxy()
  */
+
+/**
+ * LUQIUDO
+ * 子类创建 AOP 的一个辅助类
+ */
 @SuppressWarnings("serial")
 public class ProxyCreatorSupport extends AdvisedSupport {
 
@@ -102,6 +107,11 @@ public class ProxyCreatorSupport extends AdvisedSupport {
 		if (!this.active) {
 			activate();
 		}
+		// LUQIUDO
+		// 通过 AopProxyFactory 取得 AopProxy，
+		// 这个 AopProxyFactory是在初始化函数中定义的，
+		// 使用的是 DefaultAopProxyFactory
+		// STEPINTO 分析 DefaultAopProxyFactory 中具体生成过程
 		return getAopProxyFactory().createAopProxy(this);
 	}
 

@@ -29,6 +29,8 @@ import org.springframework.lang.Nullable;
  * @author Juergen Hoeller
  * @see DefaultAopProxyFactory
  */
+// LUQIUDO
+// 有两个具体具体实现类 Cglib2AopProxy and JdkDynamicProxy
 public interface AopProxy {
 
 	/**

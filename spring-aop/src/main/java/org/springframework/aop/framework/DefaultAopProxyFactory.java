@@ -46,6 +46,13 @@ import org.springframework.aop.SpringProxy;
 @SuppressWarnings("serial")
 public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
 
+	// LUQIUDO
+	// 这是一个比较高层次的AopProxy代理对象的生成过程
+	// 所谓高层次，是指在DefaultAopProxyFactory创建AopProxy的过程中，
+	// 对不同的AopProxy代理对象的生成所涉及的生成策略和场景做了相应的设计，
+	// 但是对于具体的AopProxy代理对象的生成，最终并没有由DefaultAopProxyFactory来完成，
+	// 比如对JDK和CGLIB这些具体的技术的使用，对具体的实现层次的代理对象的生成，
+	// 是由Spring封装的JdkDynamicAopProxy和CglibProxyFactory类来完成的
 	@Override
 	public AopProxy createAopProxy(AdvisedSupport config) throws AopConfigException {
 		if (config.isOptimize() || config.isProxyTargetClass() || hasNoUserSuppliedProxyInterfaces(config)) {
@@ -54,9 +61,11 @@ public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
 				throw new AopConfigException("TargetSource cannot determine target class: " +
 						"Either an interface or a target is required for proxy creation.");
 			}
+			// 如果 targetClass是接口类，使用 JDK来生成 Proxy
 			if (targetClass.isInterface() || Proxy.isProxyClass(targetClass)) {
 				return new JdkDynamicAopProxy(config);
 			}
+			// 如果不是接口类要生成 Proxy，那么使用 CGLIB来生成
 			return new ObjenesisCglibAopProxy(config);
 		}
 		else {

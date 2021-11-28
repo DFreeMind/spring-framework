@@ -28,6 +28,12 @@ import org.springframework.util.Assert;
  * @author Juergen Hoeller
  * @see AdvisedSupport
  */
+
+/**
+ * LUQIUDO
+ * 相当于一个数据基类, 为子类提供配置属性
+ * @author luqiu
+ */
 public class ProxyConfig implements Serializable {
 
 	/** use serialVersionUID from Spring 1.2 for interoperability */

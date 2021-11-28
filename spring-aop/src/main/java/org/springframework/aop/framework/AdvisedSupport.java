@@ -58,6 +58,11 @@ import org.springframework.util.CollectionUtils;
  * @author Juergen Hoeller
  * @see org.springframework.aop.framework.AopProxy
  */
+
+/**
+ * @author LUQIUDO
+ * 封装了AOP 对通知和通知器的相关操作, 所有的子类都有
+ */
 public class AdvisedSupport extends ProxyConfig implements Advised {
 
 	/** use serialVersionUID from Spring 2.0 for interoperability */
