@@ -47,14 +47,28 @@ import org.springframework.lang.Nullable;
 @SuppressWarnings("serial")
 public class DefaultAdvisorChainFactory implements AdvisorChainFactory, Serializable {
 
+	/**
+	 * LUQIUDO
+	 * 首先设置了一个 List，其长度是由配置的通知器的个数来决定的，
+	 * 这个配置就是在 XML 中对 ProxyFactoryBean 做的 interceptNames 属性的配置。
+	 * 然后，DefaultAdvisorChainFactory 会通过一个 AdvisorAdapterRegistry 来实现拦截器的注册，
+	 * AdvisorAdapterRegistry 对 advice 通知的织入功能起了很大的作用.
+	 * 有了 AdvisorAdapterRegistry 注册器，利用它来对从 ProxyFactoryBean 配置中得到的通知进行适配，
+	 * 从而获得相应的拦截器，再把它加入前面设置好的 List 中去，完成所谓的拦截器注册过程。
+	 * 在拦截器适配和注册过程完成以后，List 中的拦截器会被 JDK 生成的 AopProxy 代理对象的 invoke 方法
+	 * 或者 CGLIB 代理对象的 intercept 拦截方法取得，并启动拦截器的 invoke 调用，最终触发通知的切面增强
+	 */
 	@Override
 	public List<Object> getInterceptorsAndDynamicInterceptionAdvice(
 			Advised config, Method method, @Nullable Class<?> targetClass) {
 
+		// advisor链已经在 config中持有了，这里可以直接使用
 		// This is somewhat tricky... We have to process introductions first,
 		// but we need to preserve order in the ultimate list.
 		List<Object> interceptorList = new ArrayList<Object>(config.getAdvisors().length);
 		Class<?> actualClass = (targetClass != null ? targetClass : method.getDeclaringClass());
+		// 判断 Advisors 是否符合配置要求
+		// STEPINTO
 		boolean hasIntroductions = hasMatchingIntroductions(config, actualClass);
 		AdvisorAdapterRegistry registry = GlobalAdvisorAdapterRegistry.getInstance();
 
@@ -64,7 +78,10 @@ public class DefaultAdvisorChainFactory implements AdvisorChainFactory, Serializ
 				PointcutAdvisor pointcutAdvisor = (PointcutAdvisor) advisor;
 				if (config.isPreFiltered() || pointcutAdvisor.getPointcut().getClassFilter().matches(actualClass)) {
 					MethodMatcher mm = pointcutAdvisor.getPointcut().getMethodMatcher();
+					// 使用 MethodMatchers的 matches方法进行匹配判断
 					if (MethodMatchers.matches(mm, method, actualClass, hasIntroductions)) {
+						// 拦截器链是通过 AdvisorAdapterRegistry来加入的，
+						// 这个 AdvisorAdapterRegistry对 advice织入起了很大的作用
 						MethodInterceptor[] interceptors = registry.getInterceptors(advisor);
 						if (mm.isRuntime()) {
 							// Creating a new object instance in the getInterceptors() method
@@ -99,6 +116,9 @@ public class DefaultAdvisorChainFactory implements AdvisorChainFactory, Serializ
 	 * Determine whether the Advisors contain matching introductions.
 	 */
 	private static boolean hasMatchingIntroductions(Advised config, Class<?> actualClass) {
+		// advisor 通知器是从 AdvisorSupport 中取得
+		// 在 ProxyBeanFactory 中对 advisor 进行初始化
+		// SETPINTO
 		for (Advisor advisor : config.getAdvisors()) {
 			if (advisor instanceof IntroductionAdvisor) {
 				IntroductionAdvisor ia = (IntroductionAdvisor) advisor;

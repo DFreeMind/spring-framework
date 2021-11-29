@@ -333,16 +333,20 @@ public abstract class AopUtils {
 	 * @throws Throwable if thrown by the target method
 	 * @throws org.springframework.aop.AopInvocationException in case of a reflection error
 	 */
+	// LUQIUDO
+	// 首先得到调用方法的反射对象，然后使用invoke启动对方法反射对象的调用
 	@Nullable
 	public static Object invokeJoinpointUsingReflection(@Nullable Object target, Method method, Object[] args)
 			throws Throwable {
 
+		// 这里是使用反射调用 target对象方法的地方
 		// Use reflection to invoke the method.
 		try {
 			ReflectionUtils.makeAccessible(method);
 			return method.invoke(target, args);
 		}
 		catch (InvocationTargetException ex) {
+			// 抛出 AOP异常，对异常进行转换
 			// Invoked method threw a checked exception.
 			// We must rethrow it. The client won't see the interceptor.
 			throw ex.getTargetException();

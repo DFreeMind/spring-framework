@@ -449,6 +449,8 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 	 * is added. Interceptors added programmatically through the factory API
 	 * are unaffected by such changes.
 	 */
+	// LUQIUDO
+	// 在连接器链的初始化中获取advisor通知器
 	private synchronized void initializeAdvisorChain() throws AopConfigException, BeansException {
 		// LUQIUDO
 		// advisorChainInitialized，这个标志用来表示通知器链是否已经初始化
