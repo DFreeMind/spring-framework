@@ -33,6 +33,19 @@ import org.springframework.lang.Nullable;
  * @author Rod Johnson
  * @author Juergen Hoeller
  */
+
+/**
+ * LUQIUDO
+ * 对于一些应用场合，需要对目标对象本身进行一些处理，比如，
+ * 如何从一个对象池或对象工厂中获得目标对象等。对于这种情况，
+ * 需要使用Spring的TargetSource接口特性，在这里，
+ * 把这类AOP特性当成高级特性的一种，通过对这些AOP特性的实现原理的了解，
+ * 可以实现对AOP基本特性的灵活运用
+ *
+ * Spring提供了许多现成的TargetSource实现，
+ * 比如HotSwappableTargetSource，HotSwappableTargetSource
+ * 使用户可以以线程安全的方式切换目标对象，提供所谓的热交换功能
+ */
 public interface TargetSource extends TargetClassAware {
 
 	/**
