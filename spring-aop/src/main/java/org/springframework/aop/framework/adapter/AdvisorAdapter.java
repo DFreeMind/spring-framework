@@ -34,6 +34,8 @@ import org.springframework.aop.Advisor;
  *
  * @author Rod Johnson
  */
+// LUQIUDO
+// 包含四个实现
 public interface AdvisorAdapter {
 
 	/**
@@ -45,6 +47,7 @@ public interface AdvisorAdapter {
 	 * @see #getInterceptor(org.springframework.aop.Advisor)
 	 * @see org.springframework.aop.BeforeAdvice
 	 */
+	// 对 advice 的类型进行判断,如果是相应的类型就返回 true
 	boolean supportsAdvice(Advice advice);
 
 	/**
@@ -58,6 +61,7 @@ public interface AdvisorAdapter {
 	 * no need to cache instances for efficiency, as the AOP framework
 	 * caches advice chains.
 	 */
+	// 把 advice 通知从通知器中取出,不返回相对应类型的 AdviceInterceptor
 	MethodInterceptor getInterceptor(Advisor advisor);
 
 }

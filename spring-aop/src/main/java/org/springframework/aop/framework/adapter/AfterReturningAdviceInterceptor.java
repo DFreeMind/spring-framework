@@ -52,7 +52,10 @@ public class AfterReturningAdviceInterceptor implements MethodInterceptor, After
 
 	@Override
 	public Object invoke(MethodInvocation mi) throws Throwable {
+		// LUQIUDO
+		// 先调用 MethodInvocation 的 proceed
 		Object retVal = mi.proceed();
+		// 启用 advice 的 afterReturning 的调用
 		this.advice.afterReturning(retVal, mi.getMethod(), mi.getArguments(), mi.getThis());
 		return retVal;
 	}

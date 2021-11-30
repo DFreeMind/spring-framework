@@ -44,14 +44,18 @@ public class MethodBeforeAdviceInterceptor implements MethodInterceptor, BeforeA
 	 * Create a new MethodBeforeAdviceInterceptor for the given advice.
 	 * @param advice the MethodBeforeAdvice to wrap
 	 */
+	// 为指定的 Advice创建对应的 MethodBeforeAdviceInterceptor对象
 	public MethodBeforeAdviceInterceptor(MethodBeforeAdvice advice) {
 		Assert.notNull(advice, "Advice must not be null");
 		this.advice = advice;
 	}
 
 
+	// LUQIUDO
+	// 这个 invoke方法是拦截器的回调方法，会在代理对象的方法被调用时触发回调
 	@Override
 	public Object invoke(MethodInvocation mi) throws Throwable {
+		// 先调用 advice 的 before 方法
 		this.advice.before(mi.getMethod(), mi.getArguments(), mi.getThis());
 		return mi.proceed();
 	}

@@ -29,11 +29,15 @@ public abstract class GlobalAdvisorAdapterRegistry {
 	/**
 	 * Keep track of a single instance so we can return it to classes that request it.
 	 */
+	// LUQIUDO
+	// 单例模式的典型实现，使用静态类变量来保持一个唯一实例
+			// spring 3.0 中包含了 final 的修饰, 此处没有
 	private static AdvisorAdapterRegistry instance = new DefaultAdvisorAdapterRegistry();
 
 	/**
 	 * Return the singleton {@link DefaultAdvisorAdapterRegistry} instance.
 	 */
+	// 返回单例 DefaultAdvisorAdapterRegistry 对象
 	public static AdvisorAdapterRegistry getInstance() {
 		return instance;
 	}

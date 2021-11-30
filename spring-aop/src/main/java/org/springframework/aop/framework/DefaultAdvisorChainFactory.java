@@ -70,6 +70,9 @@ public class DefaultAdvisorChainFactory implements AdvisorChainFactory, Serializ
 		// 判断 Advisors 是否符合配置要求
 		// STEPINTO
 		boolean hasIntroductions = hasMatchingIntroductions(config, actualClass);
+		// 得到注册器 GlobalAdvisorAdapterRegistry, 这是一个单例模式的实现
+		// 通过他得到 AOP 拦截器实现
+		// STEPINTO 分析 DefaultAdvisorAdapterRegistry
 		AdvisorAdapterRegistry registry = GlobalAdvisorAdapterRegistry.getInstance();
 
 		for (Advisor advisor : config.getAdvisors()) {
@@ -82,8 +85,10 @@ public class DefaultAdvisorChainFactory implements AdvisorChainFactory, Serializ
 					if (MethodMatchers.matches(mm, method, actualClass, hasIntroductions)) {
 						// 拦截器链是通过 AdvisorAdapterRegistry来加入的，
 						// 这个 AdvisorAdapterRegistry对 advice织入起了很大的作用
+						// 从 GlobalAdvisorAdapterRegistry 中取得 MethodInterceptor 的实现
 						MethodInterceptor[] interceptors = registry.getInterceptors(advisor);
 						if (mm.isRuntime()) {
+							// 在 getInterceptors() 方法中创建新的对象实例
 							// Creating a new object instance in the getInterceptors() method
 							// isn't a problem as we normally cache created chains.
 							for (MethodInterceptor interceptor : interceptors) {

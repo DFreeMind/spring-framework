@@ -40,8 +40,12 @@ class MethodBeforeAdviceAdapter implements AdvisorAdapter, Serializable {
 	}
 
 	@Override
+	// LUQIUDO
+	// 把 advice 通知从通知器中取出, 创建一个 MethodBeforeAdviceInterceptor,
+	// 通过这个对象将 advice 通知包起来
 	public MethodInterceptor getInterceptor(Advisor advisor) {
 		MethodBeforeAdvice advice = (MethodBeforeAdvice) advisor.getAdvice();
+		// STEPINTO 完成对 MethodBeforeAdvie 的封装
 		return new MethodBeforeAdviceInterceptor(advice);
 	}
 

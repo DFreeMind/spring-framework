@@ -37,15 +37,30 @@ import org.springframework.aop.support.DefaultPointcutAdvisor;
  * @author Rob Harrop
  * @author Juergen Hoeller
  */
+
+/**
+ * LUQIUDO
+ * 了一系列在AOP应用中与用到的Spring AOP的advice通知相对应的adapter适配实现，
+ * 并看到了对这些adapter的具体使用。具体说来，对它们的使用主要体现在以下两个方面：
+ * 一是调用adapter的support方法，通过这个方法来判断取得的advice属于什么类型的advice通知，
+ * 从而根据不同的advice类型来注册不同的AdviceInterceptor，也就是前面看到的那些拦截器；
+ * 另一方面，这些AdviceInterceptor都是Spring AOP框架设计好了的，是为实现不同的advice功能提供服务的。
+ * 有了这些AdviceInterceptor，可以方便地使用由Spring提供的各种不同的advice来设计AOP应用。
+ * 也就是说，正是这些AdviceInterceptor最终实现了advice通知在AopProxy代理对象中的织入功能。
+ */
 @SuppressWarnings("serial")
 public class DefaultAdvisorAdapterRegistry implements AdvisorAdapterRegistry, Serializable {
 
+	// 持有一个 AdvisorAdapter的 List,这个 List中的 Adapter是与实现 Spring AOP的 advice增强功能相对应的
 	private final List<AdvisorAdapter> adapters = new ArrayList<>(3);
 
 
 	/**
 	 * Create a new DefaultAdvisorAdapterRegistry, registering well-known adapters.
 	 */
+	// 这里把已有的 advice实现的 Adapter加入进来，
+	// 有非常熟悉的 MethodBeforeAdvice、 AfterReturningAdvice、
+	// ThrowsAdvice 这些 AOP的 advice封装实现
 	public DefaultAdvisorAdapterRegistry() {
 		registerAdvisorAdapter(new MethodBeforeAdviceAdapter());
 		registerAdvisorAdapter(new AfterReturningAdviceAdapter());
@@ -75,13 +90,20 @@ public class DefaultAdvisorAdapterRegistry implements AdvisorAdapterRegistry, Se
 		throw new UnknownAdviceTypeException(advice);
 	}
 
+
 	@Override
+	// 在 DefaultAdvisorChainFactory中启动的 getInterceptors方法
 	public MethodInterceptor[] getInterceptors(Advisor advisor) throws UnknownAdviceTypeException {
 		List<MethodInterceptor> interceptors = new ArrayList<>(3);
+		// 从 Advisor通知器配置中取得 advice通知
 		Advice advice = advisor.getAdvice();
+		// 如果通知是 MethodInterceptor类型的通知，直接加入 interceptors的 List中，不需要适配
 		if (advice instanceof MethodInterceptor) {
 			interceptors.add((MethodInterceptor) advice);
 		}
+		// 对通知进行适配，使用已经配置好的 Adapter： MethodBeforeAdviceAdapter、
+		// AfterReturningAdviceAdapter以及 ThrowsAdviceAdapter，然后从对应的
+		// adapter 中取出封装好 AOP 编织功能的拦截器
 		for (AdvisorAdapter adapter : this.adapters) {
 			if (adapter.supportsAdvice(advice)) {
 				interceptors.add(adapter.getInterceptor(advisor));
