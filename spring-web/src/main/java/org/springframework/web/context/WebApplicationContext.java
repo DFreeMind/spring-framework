@@ -52,6 +52,7 @@ public interface WebApplicationContext extends ApplicationContext {
 	 * @see org.springframework.web.context.support.WebApplicationContextUtils#getWebApplicationContext
 	 * @see org.springframework.web.context.support.WebApplicationContextUtils#getRequiredWebApplicationContext
 	 */
+	// 用于在 ServletContext中存取根上下文
 	String ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE = WebApplicationContext.class.getName() + ".ROOT";
 
 	/**
@@ -100,6 +101,11 @@ public interface WebApplicationContext extends ApplicationContext {
 	/**
 	 * Return the standard Servlet API ServletContext for this application.
 	 */
+	// LUQIUDO
+	// 得到 Web 容器的 servlet 上下文环境
+	// 通过此方法相当于提供了一个 web 容器级别的全局环境
+	// 对 WebApplicationContext来说，需要得到 Web容器的 ServletContext，
+	// 通过这个方法可以取得 Web容器的 ServletContext
 	@Nullable
 	ServletContext getServletContext();
 

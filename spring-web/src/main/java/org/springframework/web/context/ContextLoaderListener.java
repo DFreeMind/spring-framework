@@ -34,6 +34,9 @@ import javax.servlet.ServletContextListener;
  * @see #setContextInitializers
  * @see org.springframework.web.WebApplicationInitializer
  */
+// LUQIUDO
+// 这个监听器是启动根IoC容器并把它载入到Web容器的主要功能模块，
+// 也是整个Spring Web应用加载IoC的第一个地方
 public class ContextLoaderListener extends ContextLoader implements ServletContextListener {
 
 	/**
@@ -98,6 +101,7 @@ public class ContextLoaderListener extends ContextLoader implements ServletConte
 	/**
 	 * Initialize the root web application context.
 	 */
+	// 应用启动时该方法被调用
 	@Override
 	public void contextInitialized(ServletContextEvent event) {
 		initWebApplicationContext(event.getServletContext());
@@ -107,6 +111,7 @@ public class ContextLoaderListener extends ContextLoader implements ServletConte
 	/**
 	 * Close the root web application context.
 	 */
+	// 应用关闭是方法被调用
 	@Override
 	public void contextDestroyed(ServletContextEvent event) {
 		closeWebApplicationContext(event.getServletContext());
