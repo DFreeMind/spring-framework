@@ -144,6 +144,11 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 	 * @throws ServletException if bean properties are invalid (or required
 	 * properties are missing), or if subclass initialization fails.
 	 */
+	/**
+	 * LUQIUDO
+	 * 在初始化开始时，需要读取配置在ServletContext中的Bean属性参数，
+	 * 这些属性参数设置在web.xml的Web容器初始化参数中
+	 */
 	@Override
 	public final void init() throws ServletException {
 		if (logger.isDebugEnabled()) {
@@ -151,6 +156,7 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 		}
 
 		// Set bean properties from init parameters.
+		// 获取 Servlet的初始化参数，对 Bean属性进行配置
 		PropertyValues pvs = new ServletConfigPropertyValues(getServletConfig(), this.requiredProperties);
 		if (!pvs.isEmpty()) {
 			try {
@@ -169,6 +175,8 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 		}
 
 		// Let subclasses do whatever initialization they like.
+		// 调用子类的 initServletBean进行具体的初始化
+		// 即 FrameworkServlet 中的 initServletBean 方法
 		initServletBean();
 
 		if (logger.isDebugEnabled()) {

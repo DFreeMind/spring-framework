@@ -154,6 +154,11 @@ import org.springframework.web.util.WebUtils;
  * @see org.springframework.web.servlet.mvc.Controller
  * @see org.springframework.web.context.ContextLoaderListener
  */
+
+/**
+ * LUQIUDO
+ * 初始化 init() 方法在基类 HttpServletBean 中
+ */
 @SuppressWarnings("serial")
 public class DispatcherServlet extends FrameworkServlet {
 
@@ -487,6 +492,8 @@ public class DispatcherServlet extends FrameworkServlet {
 	 */
 	@Override
 	protected void onRefresh(ApplicationContext context) {
+		// LUQIUDO
+		// 启动 Spring MVC 框架初始化
 		initStrategies(context);
 	}
 
@@ -498,6 +505,7 @@ public class DispatcherServlet extends FrameworkServlet {
 		initMultipartResolver(context);
 		initLocaleResolver(context);
 		initThemeResolver(context);
+		// STEPINTO 为 HTTP 找到相应的 Controller
 		initHandlerMappings(context);
 		initHandlerAdapters(context);
 		initHandlerExceptionResolvers(context);
@@ -579,7 +587,10 @@ public class DispatcherServlet extends FrameworkServlet {
 	 */
 	private void initHandlerMappings(ApplicationContext context) {
 		this.handlerMappings = null;
-
+		// 导入所有的 HandlerMapping Bean，
+		// 这些 Bean可以在当前的 DispatcherServlet的 IoC容器中，
+		// 也可能在其双亲上下文中, 这个 detectAllHandlerMappings的默认值设为 true，
+		// 即默认地从所有的 IoC容器中取
 		if (this.detectAllHandlerMappings) {
 			// Find all HandlerMappings in the ApplicationContext, including ancestor contexts.
 			Map<String, HandlerMapping> matchingBeans =
@@ -592,6 +603,7 @@ public class DispatcherServlet extends FrameworkServlet {
 		}
 		else {
 			try {
+				// 可以根据名称从当前的 IoC容器中通过 getBean获取 handlerMapping
 				HandlerMapping hm = context.getBean(HANDLER_MAPPING_BEAN_NAME, HandlerMapping.class);
 				this.handlerMappings = Collections.singletonList(hm);
 			}
@@ -602,6 +614,8 @@ public class DispatcherServlet extends FrameworkServlet {
 
 		// Ensure we have at least one HandlerMapping, by registering
 		// a default HandlerMapping if no other mappings are found.
+		// 如果没有找到 handerMappings，那么需要为 Servlet设定默认的 handlerMappings，
+		// 这些默认的值可以设置在 DispatcherServlet.properties中
 		if (this.handlerMappings == null) {
 			this.handlerMappings = getDefaultStrategies(context, HandlerMapping.class);
 			if (logger.isDebugEnabled()) {
