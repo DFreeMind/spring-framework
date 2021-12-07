@@ -40,9 +40,12 @@ public class HandlerExecutionChain {
 
 	private static final Log logger = LogFactory.getLog(HandlerExecutionChain.class);
 
+	// LUQIUDO
+	// HTTP 请求对应的 Controller
 	private final Object handler;
 
 	@Nullable
+	// 拦截器链, 为 handler 提供功能的增强
 	private HandlerInterceptor[] interceptors;
 
 	@Nullable
@@ -90,6 +93,7 @@ public class HandlerExecutionChain {
 	/**
 	 * Add the given interceptor to the end of this chain.
 	 */
+	// 为拦截器链增加拦截器
 	public void addInterceptor(HandlerInterceptor interceptor) {
 		initInterceptorList().add(interceptor);
 	}
@@ -134,6 +138,9 @@ public class HandlerExecutionChain {
 	 * next interceptor or the handler itself. Else, DispatcherServlet assumes
 	 * that this interceptor has already dealt with the response itself.
 	 */
+	// LUQIUDO
+	// DispatcherServlet 中的 doDispatch 中会调用此方法
+	// 调用 handler的拦截器，从 HandlerExecutionChain中取出 Interceptor进行前处理
 	boolean applyPreHandle(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		HandlerInterceptor[] interceptors = getInterceptors();
 		if (!ObjectUtils.isEmpty(interceptors)) {

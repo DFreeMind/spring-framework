@@ -347,8 +347,18 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 	 */
 	@Override
 	@Nullable
+	// LUQIUDO
+	// 该方法会根据初始化时得到的映射关系来生成 DispatcherServlet
+	// 需要的 HandlerExecutionChain，也就是说，这个 getHandler 方法是实际使用
+	// HandlerMapping 完成请求的映射处理的地方
 	public final HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
+		// 取得handler的具体过程在getHandlerInternal方法中实现，
+		// 这个方法接受HTTP请求作为参数，它的实现在 AbstractHandlerMapping 的子类
+		// AbstractUrlHandlerMapping 中，这个实现过程包括从HTTP请求中得到URL，
+		// 并根据URL到urlMapping中获得handler
+		// STEPINTO 分析 handler 获取过程
 		Object handler = getHandlerInternal(request);
+		// 使用默认的 Handler,也就是 "/"对应的 handler
 		if (handler == null) {
 			handler = getDefaultHandler();
 		}
@@ -356,11 +366,13 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 			return null;
 		}
 		// Bean name or resolved handler?
+		// 里通过名称取出对应的 Handler Bean
 		if (handler instanceof String) {
 			String handlerName = (String) handler;
 			handler = obtainApplicationContext().getBean(handlerName);
 		}
 
+		// 把 Handler封装到 HandlerExecutionChain中并加上拦截器
 		HandlerExecutionChain executionChain = getHandlerExecutionChain(handler, request);
 		if (CorsUtils.isCorsRequest(request)) {
 			CorsConfiguration globalConfig = this.globalCorsConfigSource.getCorsConfiguration(request);

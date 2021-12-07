@@ -899,6 +899,10 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * for the actual dispatching.
 	 */
 	@Override
+	// LUQIUDO
+	// 在MVC框架初始化完成以后，对HTTP请求的处理是在doService()方法中完成的。
+	// DispatcherServlet是HttpServlet的子类，与其他HttpServlet一样，
+	// 可以通过doService()来响应HTTP的请求
 	protected void doService(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		if (logger.isDebugEnabled()) {
 			String resumed = WebAsyncUtils.getAsyncManager(request).hasConcurrentResult() ? " resumed" : "";
@@ -921,6 +925,7 @@ public class DispatcherServlet extends FrameworkServlet {
 		}
 
 		// Make framework objects available to handlers and view objects.
+		// 对 HTTP 请求参数进行处理
 		request.setAttribute(WEB_APPLICATION_CONTEXT_ATTRIBUTE, getWebApplicationContext());
 		request.setAttribute(LOCALE_RESOLVER_ATTRIBUTE, this.localeResolver);
 		request.setAttribute(THEME_RESOLVER_ATTRIBUTE, this.themeResolver);
@@ -936,6 +941,8 @@ public class DispatcherServlet extends FrameworkServlet {
 		}
 
 		try {
+			// 分发请求入口
+			// STEPINTO 分析请求处理的实际过程 important
 			doDispatch(request, response);
 		}
 		finally {
@@ -959,6 +966,13 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * @param response current HTTP response
 	 * @throws Exception in case of any kind of processing failure
 	 */
+	/**
+	 * LUQIUDO
+	 * 这个doDispatch方法是DispatcherServlet完成Dispatcher的主要方法，包括准备ModelAndView，
+	 * 调用getHandler来响应HTTP请求，然后通过执行Handler的处理来得到返回的ModelAndView结果，
+	 * 最后把这个ModelAndView对象交给相应的视图对象去呈现。在这里，可以看到MVC模式核心的实现，
+	 * 同时，也是在这里完成了模型、视图和控制器的紧密结合，其协同模型和控制器的过程
+	 */
 	protected void doDispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		HttpServletRequest processedRequest = request;
 		HandlerExecutionChain mappedHandler = null;
@@ -967,6 +981,7 @@ public class DispatcherServlet extends FrameworkServlet {
 		WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);
 
 		try {
+			// 这里为视图准备好一个 ModelAndView，这个 ModelAndView持有 handler处理请求的结果
 			ModelAndView mv = null;
 			Exception dispatchException = null;
 
@@ -975,6 +990,8 @@ public class DispatcherServlet extends FrameworkServlet {
 				multipartRequestParsed = (processedRequest != request);
 
 				// Determine handler for the current request.
+				// 根据请求得到对应的 handler， handler的注册以及 getHandler的实现
+				// STEPINTO 分析取得 handler 的过程
 				mappedHandler = getHandler(processedRequest);
 				if (mappedHandler == null) {
 					noHandlerFound(processedRequest, response);
@@ -982,6 +999,9 @@ public class DispatcherServlet extends FrameworkServlet {
 				}
 
 				// Determine handler adapter for the current request.
+				// 这里是实际调用 handler的地方，在执行 handler之前，
+				// 用 HandlerAdapter先检查一下 handler的合法性：是不是按 Spring的要求编写的 handler
+				// handler处理的结果封装到 ModelAndView对象中，为视图提供展现数据
 				HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());
 
 				// Process last-modified header, if supported by the handler.
@@ -996,19 +1016,23 @@ public class DispatcherServlet extends FrameworkServlet {
 						return;
 					}
 				}
-
+				// 为注册的拦截器配置预处理方法
+				// STEPINTO 分析 applyPreHandle, 在 HandlerExecutionChain
 				if (!mappedHandler.applyPreHandle(processedRequest, response)) {
 					return;
 				}
 
 				// Actually invoke the handler.
+				// 通过调用 HandleAdapter的 handle方法，
+				// 实际上触发对 Controller的 handleRequest方法的调用
 				mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
 
 				if (asyncManager.isConcurrentHandlingStarted()) {
 					return;
 				}
-
+				// STEPINTO 判断是否需要进行视图名的翻译和转换
 				applyDefaultViewName(processedRequest, mv);
+				// 后置处理
 				mappedHandler.applyPostHandle(processedRequest, response, mv);
 			}
 			catch (Exception ex) {
@@ -1019,6 +1043,7 @@ public class DispatcherServlet extends FrameworkServlet {
 				// making them available for @ExceptionHandler methods and other scenarios.
 				dispatchException = new NestedServletException("Handler dispatch failed", err);
 			}
+			// 使用视图对 ModelAndView 数据进行展示
 			processDispatchResult(processedRequest, response, mappedHandler, mv, dispatchException);
 		}
 		catch (Exception ex) {
@@ -1048,6 +1073,8 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * Do we need view name translation?
 	 */
 	private void applyDefaultViewName(HttpServletRequest request, @Nullable ModelAndView mv) throws Exception {
+		// LUQIUDO
+		// 判断是否需要进行视图名的翻译和转换
 		if (mv != null && !mv.hasView()) {
 			String defaultViewName = getDefaultViewName(request);
 			if (defaultViewName != null) {
@@ -1194,6 +1221,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	@Nullable
 	protected HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
 		if (this.handlerMappings != null) {
+			// 从 HandlerMapping中去取 handler的调用
 			for (HandlerMapping hm : this.handlerMappings) {
 				if (logger.isTraceEnabled()) {
 					logger.trace(
@@ -1235,10 +1263,15 @@ public class DispatcherServlet extends FrameworkServlet {
 	 */
 	protected HandlerAdapter getHandlerAdapter(Object handler) throws ServletException {
 		if (this.handlerAdapters != null) {
+			// LUQIUDO
+			// 对持有的所有 adapter进行匹配
 			for (HandlerAdapter ha : this.handlerAdapters) {
 				if (logger.isTraceEnabled()) {
 					logger.trace("Testing handler adapter [" + ha + "]");
 				}
+				// 判断 handler 是不是 Controller 的实现
+				// 具体可参考 SimpleControllerHandlerAdapter
+				// STEPINTO
 				if (ha.supports(handler)) {
 					return ha;
 				}

@@ -52,8 +52,13 @@ import org.springframework.util.CollectionUtils;
  * @see #setUrlMap
  * @see BeanNameUrlHandlerMapping
  */
+// LUQIUDO
+// 分析 HandlerMapping 的实现
 public class SimpleUrlHandlerMapping extends AbstractUrlHandlerMapping {
 
+	// 用来只有一系列的映射关系
+	// URL请求和控制器的对应关系
+	// 具体的映射关系是通过 HandlerMapping 来封装
 	private final Map<String, Object> urlMap = new LinkedHashMap<>();
 
 
@@ -98,8 +103,11 @@ public class SimpleUrlHandlerMapping extends AbstractUrlHandlerMapping {
 	 * superclass's initialization.
 	 */
 	@Override
+	// LUQIUDO
+	// HandlerMapping 启动注册过程
 	public void initApplicationContext() throws BeansException {
 		super.initApplicationContext();
+		// STEPINTO 分析注册过程
 		registerHandlers(this.urlMap);
 	}
 
@@ -114,6 +122,7 @@ public class SimpleUrlHandlerMapping extends AbstractUrlHandlerMapping {
 			logger.warn("Neither 'urlMap' nor 'mappings' set on SimpleUrlHandlerMapping");
 		}
 		else {
+			// 对 Bean的配置进行解析，然后调用基类的 registerHandler完成注册
 			urlMap.forEach((url, handler) -> {
 				// Prepend with slash if not already present.
 				if (!url.startsWith("/")) {

@@ -136,6 +136,12 @@ public interface HandlerMapping {
 	 * @throws Exception if there is an internal error
 	 */
 	@Nullable
+	/**
+	 * LUQIUDO
+	 * 调用 getHandler实际上返回的是一个 HandlerExecutionChain，
+	 * 这是典型的 Command 的模式的使用，这个 HandlerExecutionChain 不但持有 handler本身，
+	 * 还包括了处理这个 HTTP 请求相关的拦截器
+	 */
 	HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception;
 
 }
