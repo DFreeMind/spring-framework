@@ -1044,6 +1044,8 @@ public class DispatcherServlet extends FrameworkServlet {
 				dispatchException = new NestedServletException("Handler dispatch failed", err);
 			}
 			// 使用视图对 ModelAndView 数据进行展示
+			// 通过 render 来完成对视图的渲染
+			// STEPINTO 分析 reader
 			processDispatchResult(processedRequest, response, mappedHandler, mv, dispatchException);
 		}
 		catch (Exception ex) {
@@ -1107,6 +1109,8 @@ public class DispatcherServlet extends FrameworkServlet {
 
 		// Did the handler return a view to render?
 		if (mv != null && !mv.wasCleared()) {
+			// LUQIUDO
+			// STEPINTO 分析视图渲染过程
 			render(mv, request, response);
 			if (errorView) {
 				WebUtils.clearErrorRequestAttributes(request);
@@ -1336,24 +1340,32 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * @throws ServletException if view is missing or cannot be resolved
 	 * @throws Exception if there's a problem rendering the view
 	 */
+	// LUQIUDO
+	// DispatcherServlet 的 reader
 	protected void render(ModelAndView mv, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		// Determine locale for request and apply it to the response.
+		// 从 request中读取 locale信息，并设置 response的 locale值
 		Locale locale =
 				(this.localeResolver != null ? this.localeResolver.resolveLocale(request) : request.getLocale());
 		response.setLocale(locale);
 
+		// 根据 ModleAndView 中设置的视图名称进行解析，得到对应的视图对象
 		View view;
 		String viewName = mv.getViewName();
 		if (viewName != null) {
 			// We need to resolve the view name.
+			// 需要对视图名进行解析, 通过解析视图的逻辑名得到视图对象
+			// STEPINTO 解析视图过程
 			view = resolveViewName(viewName, mv.getModelInternal(), locale, request);
 			if (view == null) {
 				throw new ServletException("Could not resolve view with name '" + mv.getViewName() +
 						"' in servlet with name '" + getServletName() + "'");
 			}
 		}
+		// ModelAndView中有可能已经直接包含了 View对象，那就可以直接使用
 		else {
 			// No need to lookup: the ModelAndView object contains the actual View object.
+			// 直接从 ModelAndView 对象中取得实际的视图对象
 			view = mv.getView();
 			if (view == null) {
 				throw new ServletException("ModelAndView [" + mv + "] neither contains a view name nor a " +
@@ -1369,6 +1381,7 @@ public class DispatcherServlet extends FrameworkServlet {
 			if (mv.getStatus() != null) {
 				response.setStatus(mv.getStatus().value());
 			}
+			// 调用 view实现对数据进行呈现，并通过 HttpResponse把视图呈现给 HTTP客户端
 			view.render(mv.getModelInternal(), request, response);
 		}
 		catch (Exception ex) {
@@ -1406,11 +1419,17 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * @see ViewResolver#resolveViewName
 	 */
 	@Nullable
+	// LUQIUDO
+	// DispatcherServlet 解析视图
 	protected View resolveViewName(String viewName, @Nullable Map<String, Object> model,
 			Locale locale, HttpServletRequest request) throws Exception {
 
 		if (this.viewResolvers != null) {
+			// 调用 ViewResolver 进行解析
 			for (ViewResolver viewResolver : this.viewResolvers) {
+				// 解析过程, 可参考常见的 BeanNameViewResovler 的 resolveViewName
+				// BeanNameViewResolver 实现了 ViewResoler 接口
+				// STEPINTO 分析从上下文中解析视图
 				View view = viewResolver.resolveViewName(viewName, locale);
 				if (view != null) {
 					return view;

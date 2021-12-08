@@ -74,8 +74,12 @@ public class BeanNameViewResolver extends WebApplicationObjectSupport implements
 
 	@Override
 	@Nullable
+	// LUQIUDO
+	// 上下文中解析视图
 	public View resolveViewName(String viewName, Locale locale) throws BeansException {
+		// 获取当前的 IoC 容器
 		ApplicationContext context = obtainApplicationContext();
+		// 判断 IoC 容器中是否含有指定名称的视图Bean
 		if (!context.containsBean(viewName)) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("No matching bean found for view name '" + viewName + "'");
@@ -92,6 +96,7 @@ public class BeanNameViewResolver extends WebApplicationObjectSupport implements
 			// let's accept this as a non-match and allow for chaining as well...
 			return null;
 		}
+		// 通过 getBean 获取视图 Bean
 		return context.getBean(viewName, View.class);
 	}
 
