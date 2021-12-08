@@ -302,6 +302,8 @@ public abstract class AbstractView extends WebApplicationObjectSupport implement
 	 * @see #renderMergedOutputModel
 	 */
 	@Override
+	// LUQIUDO
+	// 基类中俄 reader
 	public void render(@Nullable Map<String, ?> model, HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
 
@@ -310,8 +312,13 @@ public abstract class AbstractView extends WebApplicationObjectSupport implement
 				" and static attributes " + this.staticAttributes);
 		}
 
+		// 把所有的相关信息都收集到一个 Map 里
 		Map<String, Object> mergedModel = createMergedOutputModel(model, request, response);
 		prepareResponse(request, response);
+		// 展现模型数据到视图的调用方法
+		// 该方法是一个模板方法, 他的实现在 InternalResourceView
+		// 中完成, 该类也是 JstlView 的基类
+		// STEPINTO 分析具体过程
 		renderMergedOutputModel(mergedModel, getRequestToExpose(request), response);
 	}
 
@@ -435,6 +442,8 @@ public abstract class AbstractView extends WebApplicationObjectSupport implement
 	 * @param model a Map of model objects to expose
 	 * @param request current HTTP request
 	 */
+	// LUQIUDO
+	// 把ModelAndView中的模型数据和其他请求数据都放到HttpServletRequest的属性中去
 	protected void exposeModelAsRequestAttributes(Map<String, Object> model,
 			HttpServletRequest request) throws Exception {
 

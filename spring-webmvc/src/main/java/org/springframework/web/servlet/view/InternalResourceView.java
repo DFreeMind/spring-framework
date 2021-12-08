@@ -134,19 +134,29 @@ public class InternalResourceView extends AbstractUrlBasedView {
 	 * This includes setting the model as request attributes.
 	 */
 	@Override
+	// LUQIUDO
+	// 实现 AbstractView 中的方法
 	protected void renderMergedOutputModel(
 			Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 		// Expose the model object as request attributes.
+		// 对数据进行处理，把模型对象存放到 ServletContext 中
+		// STEPINTO
 		exposeModelAsRequestAttributes(model, request);
 
 		// Expose helpers as request attributes, if any.
+		// 模板方法
+		// STEPINTO JstlView 中的实现
 		exposeHelpers(request);
 
 		// Determine the path for the request dispatcher.
+		// 获取 InternalResource 定义的内部资源路径
+		// 从 request 中获取 URL 路径
+		// STEPINTO
 		String dispatcherPath = prepareForRendering(request, response);
 
 		// Obtain a RequestDispatcher for the target resource (typically a JSP).
+		// 把请求转发到前面获取的内部资源路径中去, 前面获取到了转发的 URL dispatcherPath
 		RequestDispatcher rd = getRequestDispatcher(request, dispatcherPath);
 		if (rd == null) {
 			throw new ServletException("Could not get RequestDispatcher for [" + getUrl() +
@@ -197,9 +207,10 @@ public class InternalResourceView extends AbstractUrlBasedView {
 	 * @throws Exception if preparations failed
 	 * @see #getUrl()
 	 */
+	// LUQIUDO
 	protected String prepareForRendering(HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
-
+		// 从 Request 获取 URL
 		String path = getUrl();
 		Assert.state(path != null, "'url' not set");
 
