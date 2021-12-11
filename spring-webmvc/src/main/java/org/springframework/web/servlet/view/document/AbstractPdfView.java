@@ -56,6 +56,8 @@ public abstract class AbstractPdfView extends AbstractView {
 	 * Note that IE won't take much notice of this, but there's not a lot we
 	 * can do about this. Generated documents should have a ".pdf" extension.
 	 */
+	// LUQIUDO
+	// 在构造函数中为 HTTP的 Response设置文档类型： "application/pdf"
 	public AbstractPdfView() {
 		setContentType("application/pdf");
 	}
@@ -74,17 +76,21 @@ public abstract class AbstractPdfView extends AbstractView {
 		ByteArrayOutputStream baos = createTemporaryOutputStream();
 
 		// Apply preferences and build metadata.
+		// 创建 iText的与 PDF文件操作相关的对象
 		Document document = newDocument();
 		PdfWriter writer = newWriter(document, baos);
 		prepareWriter(model, writer, request);
 		buildPdfMetadata(model, document, request);
 
 		// Build PDF document.
+		// 创建 PDF文件的内容，具体的创建过程交给子类的
+		// buildPdfDocument 方法去完成
 		document.open();
 		buildPdfDocument(model, document, writer, request, response);
 		document.close();
 
 		// Flush to HTTP response.
+		// 输出到 HTTP Response，将 PDF视图呈现到客户端
 		writeToResponse(response, baos);
 	}
 
