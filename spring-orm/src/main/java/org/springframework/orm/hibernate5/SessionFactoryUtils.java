@@ -80,6 +80,8 @@ import org.springframework.util.ReflectionUtils;
  * @see HibernateExceptionTranslator
  * @see HibernateTransactionManager
  */
+// LUQIUDO
+// Session的管理
 public abstract class SessionFactoryUtils {
 
 	/**

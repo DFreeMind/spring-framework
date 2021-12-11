@@ -411,7 +411,14 @@ public class LocalSessionFactoryBean extends HibernateExceptionTranslator
 
 
 	@Override
+	// LUQIUDO
+	// Spring3.x 中是在 AbstractSessionFactoryBean 中实现
+	// SessionFactory的创建是在容器依赖注入完成以后，由IoC容器的回调方法afterPropertiesSet来完成的。
+	// 这个IoC容器回调方法的启动，是因为LocalSessionFactoryBean实现了InitializingBean接口，
+	// 而这个InitializingBean接口的afterPropertiesSet方法会被IoC容器回调，
+	// 这是IoC容器对Bean进行生命周期管理的一部分
 	public void afterPropertiesSet() throws IOException {
+
 		if (this.metadataSources != null && !this.metadataSourcesAccessed) {
 			// Repeated initialization with no user-customized MetadataSources -> clear it.
 			this.metadataSources = null;
@@ -420,6 +427,7 @@ public class LocalSessionFactoryBean extends HibernateExceptionTranslator
 		LocalSessionFactoryBuilder sfb = new LocalSessionFactoryBuilder(
 				this.dataSource, getResourceLoader(), getMetadataSources());
 
+		// 对 SessionFactory 进行配置
 		if (this.configLocations != null) {
 			for (Resource resource : this.configLocations) {
 				// Load Hibernate configuration from given location.
@@ -481,6 +489,7 @@ public class LocalSessionFactoryBean extends HibernateExceptionTranslator
 		}
 
 		if (this.jtaTransactionManager != null) {
+			// 设置Spring提供的JTA事务管理器
 			sfb.setJtaTransactionManager(this.jtaTransactionManager);
 		}
 
@@ -514,6 +523,8 @@ public class LocalSessionFactoryBean extends HibernateExceptionTranslator
 
 		// Build SessionFactory instance.
 		this.configuration = sfb;
+		// LUQIUDO
+		// buildSessionFactory是通过配置信息得到SessionFactory的地方
 		this.sessionFactory = buildSessionFactory(sfb);
 	}
 
@@ -548,6 +559,8 @@ public class LocalSessionFactoryBean extends HibernateExceptionTranslator
 
 	@Override
 	@Nullable
+	// LUQIUDO
+	// 实际是FactoryBean的生产方法
 	public SessionFactory getObject() {
 		return this.sessionFactory;
 	}

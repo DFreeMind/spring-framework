@@ -86,6 +86,13 @@ import org.springframework.util.ReflectionUtils;
  * @see org.springframework.orm.hibernate5.support.OpenSessionInViewFilter
  * @see org.springframework.orm.hibernate5.support.OpenSessionInViewInterceptor
  */
+
+/**
+ * LUQIUDO
+ * 如果应用调用HibernateTemplate的execute方法，
+ * 首先HibernateTemplate会从SessionFactoryUtils中得到Hibernate的Session.
+ * 有了Session，就能利用它来操作Hibernate了，Hibernate会把这个Session设置到HibernateCallback中
+ */
 public class HibernateTemplate implements HibernateOperations, InitializingBean {
 
 	private static final Method createQueryMethod;
@@ -331,6 +338,7 @@ public class HibernateTemplate implements HibernateOperations, InitializingBean 
 
 	@Override
 	@Nullable
+	// LUQIUDO
 	public <T> T execute(HibernateCallback<T> action) throws DataAccessException {
 		return doExecute(action, false);
 	}
@@ -372,14 +380,20 @@ public class HibernateTemplate implements HibernateOperations, InitializingBean 
 		}
 		if (session == null) {
 			session = obtainSessionFactory().openSession();
+			// 设置刷新模式
 			session.setFlushMode(FlushMode.MANUAL);
 			isNew = true;
 		}
 
 		try {
 			enableFilters(session);
+			// LUQIUDO
+			// 取得Hibernate的Session，取得的过程会在下面进行分析判断是否强制需要新的Session，
+			// 如果需要，那么直接通过SessionFactory打开一个新的Session，
+			// 否则需要结合配置和当前Transaction的情况来使用Session
 			Session sessionToExpose =
 					(enforceNativeSession || isExposeNativeSession() ? session : createSessionProxy(session));
+			// 对HibernateCallBack中回调函数的调用，Session作为参数可以由回调函数使用
 			return action.doInHibernate(sessionToExpose);
 		}
 		catch (HibernateException ex) {
@@ -897,10 +911,13 @@ public class HibernateTemplate implements HibernateOperations, InitializingBean 
 	@Override
 	@SuppressWarnings({"rawtypes", "unchecked", "deprecation"})
 	public List<?> find(final String queryString, @Nullable final Object... values) throws DataAccessException {
+		// LUQIUDO
+		// 设置回调函数
 		return nonNull(executeWithNativeSession((HibernateCallback<List<?>>) session -> {
 			org.hibernate.Query queryObject = queryObject(
 					ReflectionUtils.invokeMethod(createQueryMethod, session, queryString));
 			prepareQuery(queryObject);
+			// query配置参数，并返回query的结果
 			if (values != null) {
 				for (int i = 0; i < values.length; i++) {
 					queryObject.setParameter(i, values[i]);
