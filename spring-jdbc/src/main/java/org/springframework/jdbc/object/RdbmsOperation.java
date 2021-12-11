@@ -58,6 +58,12 @@ import org.springframework.util.Assert;
  * @see StoredProcedure
  * @see org.springframework.jdbc.core.JdbcTemplate
  */
+
+/**
+ * LUQIUDO
+ * RdbmsOperation的一系列子类，
+ * 比如StoreProcedure、SqlQuery、MappingSqlQuery、SqlUpdate等。
+ */
 public abstract class RdbmsOperation implements InitializingBean {
 
 	/** Logger available to subclasses */
@@ -286,10 +292,18 @@ public abstract class RdbmsOperation implements InitializingBean {
 	 * @throws InvalidDataAccessApiUsageException if the operation is already compiled,
 	 * and hence cannot be configured further
 	 */
+	// LUQIUDO
+	// RdbmsOperation实现的参数声明和完成的工作并不复杂，
+	// 只是把需要声明的参数加入一个声明参数列表。为了防止参数的重复加入，
+	// 需要对isCompiled变量进行判断。在compile调用时设置isCompiled变量，
+	// 标识compile过程已经执行过了
 	public void declareParameter(SqlParameter param) throws InvalidDataAccessApiUsageException {
+		// 声明参数只能在compile之前，如果已经完成了compile，那么声明是无效的，并会抛出异常
 		if (isCompiled()) {
 			throw new InvalidDataAccessApiUsageException("Cannot add parameters once the query is compiled");
 		}
+		// 声明就是把参数加入到declaredParameters中去，这个declaredParameters是
+		// 定义好的一个LinkedList＜SqlParameter＞()属性，供compile使用
 		this.declaredParameters.add(param);
 	}
 
@@ -337,6 +351,9 @@ public abstract class RdbmsOperation implements InitializingBean {
 	 * @throws InvalidDataAccessApiUsageException if the object hasn't
 	 * been correctly initialized, for example if no DataSource has been provided
 	 */
+	// LUQIUDO
+	// 首先是对isCompiled变量的判断，然后调用compileInternal来完成compile的具体操作，
+	// 接着把isCompiled设置为true
 	public final void compile() throws InvalidDataAccessApiUsageException {
 		if (!isCompiled()) {
 			if (getSql() == null) {
@@ -349,7 +366,9 @@ public abstract class RdbmsOperation implements InitializingBean {
 			catch (IllegalArgumentException ex) {
 				throw new InvalidDataAccessApiUsageException(ex.getMessage());
 			}
-
+			// 调用compileInternal完成具体的compile过程，并设置compiled标志位
+			// 该方法在 SqlOperation 中完成
+			// STEPINTO 具体分析
 			compileInternal();
 			this.compiled = true;
 

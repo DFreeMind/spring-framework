@@ -37,6 +37,19 @@ import org.springframework.lang.Nullable;
  * @author Jean-Pierre Pawlak
  * @see MappingSqlQueryWithParameters
  */
+
+/**
+ * LUQIUDO
+ * 使用MappingSqlQuery将数据库表的数据记录直接映射到一个对象集合，
+ * 这是一个很有用的特性，类似于一个简单的O/R映射实现
+ *
+ * 使用过程会使用到 RdbmsOpertion 中的 declareParameter 和 compile
+ * 进去分析两者的实现原理, 在完成了compile之后，对MappingSqlQuery的准备工作就基本完成了。
+ *
+ * 在执行查询时，实际上执行的是 SqlQuery 的executeByNamedParam方法，
+ * 这个方法需要完成的工作包括配置SQL语句，配置数据记录到数据对象的转换的RowMapper，
+ * 然后使用JdbcTemplate来完成数据的查询，并启动数据记录到Java数据对象的转换
+ */
 public abstract class MappingSqlQuery<T> extends MappingSqlQueryWithParameters<T> {
 
 	/**

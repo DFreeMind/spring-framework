@@ -56,7 +56,12 @@ public abstract class SqlOperation extends RdbmsOperation {
 	 * based on our declared parameters.
 	 */
 	@Override
+	// LUQIUDO
+	// 在compileInternal中生成一个PrepareStatementCreatorFactory
+	// 作为Statement的工厂，这个工厂负责生成声明参数的Statement
 	protected final void compileInternal() {
+		// 这里是对参数的compile过程，所有的参数都在getDeclaredParameters
+		// 中生成了一个PreparedStatementCreatorFactory
 		this.preparedStatementFactory = new PreparedStatementCreatorFactory(resolveSql(), getDeclaredParameters());
 		this.preparedStatementFactory.setResultSetType(getResultSetType());
 		this.preparedStatementFactory.setUpdatableResults(isUpdatableResults());

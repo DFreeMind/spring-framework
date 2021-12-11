@@ -53,6 +53,7 @@ import org.springframework.lang.Nullable;
  * @author Thomas Risberg
  * @see SqlUpdate
  */
+// LUQIUDO
 public abstract class SqlQuery<T> extends SqlOperation {
 
 	/** The number of rows to expect; if 0, unknown. */
@@ -220,13 +221,20 @@ public abstract class SqlQuery<T> extends SqlOperation {
 	 * @return a List of objects, one per row of the ResultSet. Normally all these
 	 * will be of the same class, although it is possible to use different types.
 	 */
+	// 方法需要完成的工作包括配置SQL语句，配置数据记录到数据对象的转换的RowMapper，
+	// 然后使用JdbcTemplate来完成数据的查询，并启动数据记录到Java数据对象的转换
 	public List<T> executeByNamedParam(Map<String, ?> paramMap, @Nullable Map<?, ?> context) throws DataAccessException {
 		validateNamedParameters(paramMap);
+		// 得到需要执行的SQL语句
 		ParsedSql parsedSql = getParsedSql();
 		MapSqlParameterSource paramSource = new MapSqlParameterSource(paramMap);
 		String sqlToUse = NamedParameterUtils.substituteNamedParameters(parsedSql, paramSource);
+		// 配置好SQL语句需要的Parameters及rowMapper，
+		// 这个rowMapper完成数据记录到对象的转换
 		Object[] params = NamedParameterUtils.buildValueArray(parsedSql, paramSource, getDeclaredParameters());
 		RowMapper<T> rowMapper = newRowMapper(params, context);
+		// 使用JdbcTemplate来完成对数据库的查询操作，
+		// 所以说JdbcTemplate是非常基本的操作类
  		return getJdbcTemplate().query(newPreparedStatementCreator(sqlToUse, params), rowMapper);
 	}
 
