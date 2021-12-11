@@ -47,6 +47,17 @@ import org.springframework.jdbc.support.KeyHolder;
  * @author Juergen Hoeller
  * @see SqlQuery
  */
+
+/**
+ * LUQIUDO
+ * SqlUpdate的使用非常简洁，对应用来说，只需要提供具体的参数对象的值，
+ * 并调用update方法就可以完成整个数据的更新过程，至于数据库Connection的管理、
+ * 事务处理场景的处理等在数据库操作中都会涉及的基本过程，
+ * 由作为应用平台的Spring来处理
+ *
+ * 具体的update过程是由SqlUpdate里的updateByNamedParam方法完成的，
+ * 它的具体实现与SqlQuery的实现一样，也是使用JdbcTemplate来完成的
+ */
 public class SqlUpdate extends SqlOperation {
 
 	/**
@@ -246,12 +257,15 @@ public class SqlUpdate extends SqlOperation {
 	 * matching named parameters specified in the SQL statement
 	 * @return the number of rows affected by the update
 	 */
+	// LUQIUDO
 	public int updateByNamedParam(Map<String, ?> paramMap) throws DataAccessException {
 		validateNamedParameters(paramMap);
+		// 设置SQL和配置SQL的参数
 		ParsedSql parsedSql = getParsedSql();
 		MapSqlParameterSource paramSource = new MapSqlParameterSource(paramMap);
 		String sqlToUse = NamedParameterUtils.substituteNamedParameters(parsedSql, paramSource);
 		Object[] params = NamedParameterUtils.buildValueArray(parsedSql, paramSource, getDeclaredParameters());
+		// 调用JdbcTemplate进行update
 		int rowsAffected = getJdbcTemplate().update(newPreparedStatementCreator(sqlToUse, params));
 		checkRowsAffected(rowsAffected);
 		return rowsAffected;

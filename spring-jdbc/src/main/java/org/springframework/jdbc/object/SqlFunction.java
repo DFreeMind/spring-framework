@@ -48,6 +48,15 @@ import org.springframework.lang.Nullable;
  * @author Jean-Pierre Pawlak
  * @see StoredProcedure
  */
+// LUQIUDO
+//SqlFunction RDBMS操作类中封装了一个SQL“函数”包装器（wrapper），
+// 使用这个包装器可以查询并返回一个单行结果集，对于这个单行结果集，
+// SqlFunction默认的返回对象是一个int值。如果需要返回其他的对象类型，
+// 可以仿照JdbcTemplate中queryForXxx的实现，
+// 由应用对它进行扩展以实现返回对象的调整
+
+//使用SqlFunction的优势在于，用户不必手动创建JdbcTemplate，
+// 对于这些设置，SqlFunction已经替用户完成了
 public class SqlFunction<T> extends MappingSqlQuery<T> {
 
 	private final SingleColumnRowMapper<T> rowMapper = new SingleColumnRowMapper<>();
@@ -157,7 +166,11 @@ public class SqlFunction<T> extends MappingSqlQuery<T> {
 	 * object wrapper types for primitives.
 	 * @return the value of the function
 	 */
+
+	// LUQIUDO
+	// SQLFunction 执行 SQL 语句
 	public int run(Object... parameters) {
+		// 在 SqlFunction 的基类 SqlQuery 实现
 		Object obj = super.findObject(parameters);
 		if (!(obj instanceof Number)) {
 			throw new TypeMismatchDataAccessException("Could not convert result object [" + obj + "] to int");

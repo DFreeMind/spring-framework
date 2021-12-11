@@ -110,6 +110,7 @@ public abstract class SqlQuery<T> extends SqlOperation {
 	 */
 	public List<T> execute(@Nullable Object[] params, @Nullable Map<?, ?> context) throws DataAccessException {
 		validateParameters(params);
+		// 取得rowMapper，这个rowMapper是在SqlFunction里定义的SingleColumnRowMapper＜T＞
 		RowMapper<T> rowMapper = newRowMapper(params, context);
 		return getJdbcTemplate().query(newPreparedStatementCreator(params), rowMapper);
 	}
@@ -259,6 +260,8 @@ public abstract class SqlQuery<T> extends SqlOperation {
 	 */
 	@Nullable
 	public T findObject(@Nullable Object[] params, @Nullable Map<?, ?> context) throws DataAccessException {
+		// LUQIUDO
+		// 调用SqlQuery的execute方法来执行数据库操作
 		List<T> results = execute(params, context);
 		return DataAccessUtils.singleResult(results);
 	}
