@@ -97,6 +97,16 @@ import org.springframework.util.StringUtils;
  * @see RowMapper
  * @see org.springframework.jdbc.support.SQLExceptionTranslator
  */
+
+/**
+ * LUQIUDO
+ * 从类继承关系上来看，JdbcTemplate继承了基类JdbcAccessor和接口类JdbcOperation。
+ * 在基类JdbcAccessor的设计中，对DataSource数据源进行管理和配置。
+ * 在JdbcOperation接口中，定义了通过JDBC操作数据库的基本操作方法，
+ * 而JdbcTemplate提供这些接口方法的实现，比如execute方法、query方法、update方法等
+ *
+ * 这些在Spring中设计和实现好的模板类都是通过回调函数的使用来完成其功能的
+ */
 public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 
 	private static final String RETURN_RESULT_SET_PREFIX = "#result-set-";
@@ -364,14 +374,19 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 
 	@Override
 	@Nullable
+	// LUQIUDO
+	// 使用 java.sql.Statement处理静态 SQL语句的方法
 	public <T> T execute(StatementCallback<T> action) throws DataAccessException {
 		Assert.notNull(action, "Callback object must not be null");
 
+		// 取得数据库的Connection，这个数据库的Connection已经在Spring的事务管理之下
 		Connection con = DataSourceUtils.getConnection(obtainDataSource());
 		Statement stmt = null;
 		try {
+			// 创建Statement
 			stmt = con.createStatement();
 			applyStatementSettings(stmt);
+			// 调用回调函数
 			T result = action.doInStatement(stmt);
 			handleWarnings(stmt);
 			return result;
@@ -379,7 +394,10 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 		catch (SQLException ex) {
 			// Release Connection early, to avoid potential connection pool deadlock
 			// in the case when the exception translator hasn't been initialized yet.
+			// 如果捕捉到数据库异常，把数据库Connection释放，
+			// 同时抛出一个经过Spring转换过的Spring数据库异常
 			String sql = getSql(action);
+			// Spring做了一项有意义的工作，就是把这些数据库异常统一到自己的异常体系里了
 			JdbcUtils.closeStatement(stmt);
 			stmt = null;
 			DataSourceUtils.releaseConnection(con, getDataSource());
@@ -388,10 +406,17 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 		}
 		finally {
 			JdbcUtils.closeStatement(stmt);
+			// 释放数据库Connection
 			DataSourceUtils.releaseConnection(con, getDataSource());
 		}
 	}
 
+	/**
+	 * LUQIUDO
+	 * 在execute的实现中看到了对数据库进行操作的基本过程，
+	 * 比如需要取得数据库Connection，根据应用对数据库操作的需要创建数据库的Statement，
+	 * 对数据库操作进行回调，处理数据库异常，最后把数据库Connection关闭等
+	 */
 	@Override
 	public void execute(final String sql) throws DataAccessException {
 		if (logger.isDebugEnabled()) {
@@ -402,6 +427,8 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 			@Override
 			@Nullable
 			public Object doInStatement(Statement stmt) throws SQLException {
+				// LUQIUDO
+				// 用户定义的数据库操作代码或Spring为用户封装的数据库操作实现
 				stmt.execute(sql);
 				return null;
 			}
@@ -410,7 +437,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 				return sql;
 			}
 		}
-
+		// STEPINTO 分析具体的执行
 		execute(new ExecuteStatementCallback());
 	}
 
@@ -646,6 +673,9 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 	 * @throws DataAccessException if there is any problem
 	 */
 	@Nullable
+	// LUQIUDO
+	// query方法是通过使用 PreparedStatementCallback 的
+	// 回调方法 doInPreparedStatement 来实现的
 	public <T> T query(
 			PreparedStatementCreator psc, @Nullable final PreparedStatementSetter pss, final ResultSetExtractor<T> rse)
 			throws DataAccessException {
@@ -653,19 +683,24 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 		Assert.notNull(rse, "ResultSetExtractor must not be null");
 		logger.debug("Executing prepared SQL query");
 
+		// 调用excute并设置excute的回调函数
 		return execute(psc, new PreparedStatementCallback<T>() {
 			@Override
 			@Nullable
 			public T doInPreparedStatement(PreparedStatement ps) throws SQLException {
+				// 准备查询结果集
 				ResultSet rs = null;
 				try {
 					if (pss != null) {
 						pss.setValues(ps);
 					}
+					// 执行SQL查询
 					rs = ps.executeQuery();
+					// 返回需要的记录集合
 					return rse.extractData(rs);
 				}
 				finally {
+					// 最后关闭查询的记录集，数据库连接在execute()中释放
 					JdbcUtils.closeResultSet(rs);
 					if (pss instanceof ParameterDisposer) {
 						((ParameterDisposer) pss).cleanupParameters();

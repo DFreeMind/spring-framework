@@ -49,6 +49,14 @@ import org.springframework.util.Assert;
  * @see org.springframework.transaction.jta.JtaTransactionManager
  * @see org.springframework.transaction.support.TransactionSynchronizationManager
  */
+
+/**
+ * LUQIUDO
+ * DataSourceUtils对这些数据库Connection管理的实现。
+ * 在数据库应用中，数据库Connection的使用往往与事务管理有很紧密的联系，
+ * 这里也可以看到与事务处理相关的操作，比如 Connection 和当前线程的绑定等。
+ * @author luqiu
+ */
 public abstract class DataSourceUtils {
 
 	/**
@@ -73,8 +81,14 @@ public abstract class DataSourceUtils {
 	 * if the attempt to get a Connection failed
 	 * @see #releaseConnection
 	 */
+	// LUQIUDO
+	// 这个DataSource对象作为JdbcTemplate基类JdbcAccessor的属性，
+	// 可以通过IoC容器的依赖注入设置到JdbcTemplate中，或者在使用JdbcTemplate的时候，
+	// 由应用直接在初始化时提供DataSource对象注入给JdbcTemplate。
 	public static Connection getConnection(DataSource dataSource) throws CannotGetJdbcConnectionException {
 		try {
+			// LUQIUDO
+			// STEPINTO 分析数据库连接
 			return doGetConnection(dataSource);
 		}
 		catch (SQLException ex) {
@@ -97,9 +111,16 @@ public abstract class DataSourceUtils {
 	 * @throws SQLException if thrown by JDBC methods
 	 * @see #doReleaseConnection
 	 */
+	// LUQIUDO
+	// 取得连接的调用，是通过调用doGetConnection完成的，这里执行了异常的转换操作
 	public static Connection doGetConnection(DataSource dataSource) throws SQLException {
 		Assert.notNull(dataSource, "No DataSource specified");
 
+		// 把对数据库的Connection放到事务管理中进行管理，
+		// 这里使用在 TransactionSynchronizationManager
+		// 中定义的ThreadLocal变量来和线程绑定数据库连
+		// 如果在 TransactionSynchronizationManager
+		// 中已经有了与当前线程绑定的数据库连接，那就直接取出来使用
 		ConnectionHolder conHolder = (ConnectionHolder) TransactionSynchronizationManager.getResource(dataSource);
 		if (conHolder != null && (conHolder.hasConnection() || conHolder.isSynchronizedWithTransaction())) {
 			conHolder.requested();
@@ -112,8 +133,10 @@ public abstract class DataSourceUtils {
 		// Else we either got no holder or an empty thread-bound holder here.
 
 		logger.debug("Fetching JDBC Connection from DataSource");
+		// 这里得到需要的数据库Connection，它是在Bean配置文件中定义好的
+		// STEPINTO 分析如何得到需要的 Connection
 		Connection con = fetchConnection(dataSource);
-
+		// 最后把新打开的数据库Connection通过TransactionSynchronizationManager和当前线程绑定起来
 		if (TransactionSynchronizationManager.isSynchronizationActive()) {
 			try {
 				// Use same Connection for further JDBC actions within the transaction.
