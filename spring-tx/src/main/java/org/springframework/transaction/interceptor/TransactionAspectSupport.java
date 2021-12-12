@@ -191,8 +191,14 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 	 * @see TransactionAttributeEditor
 	 * @see NameMatchTransactionAttributeSource
 	 */
+	// LUQIUDI
+	// 配置transactionAttributeSource
+	// 这是一个NameMatchTransactionAttributeSource对象，
+	// 同时把在IoC容器中设置的事务处理属性配置到这个transactionAttributeSource中
 	public void setTransactionAttributes(Properties transactionAttributes) {
 		NameMatchTransactionAttributeSource tas = new NameMatchTransactionAttributeSource();
+		// STEPINTO 分析 NameMatchTransactionAttributeSource 设置属性的具体过程
+		// 事务处理树形读入和匹配的地方
 		tas.setProperties(transactionAttributes);
 		this.transactionAttributeSource = tas;
 	}

@@ -38,15 +38,29 @@ import org.springframework.util.Assert;
  * @see TransactionProxyFactoryBean
  */
 @SuppressWarnings("serial")
+/**
+ * LUQIUDO
+ * 事务配置属性的读取
+ */
 public class TransactionAttributeSourceAdvisor extends AbstractPointcutAdvisor {
 
 	@Nullable
+	// 与其他Advisor一样，同样需要定义AOP中用到的Interceptor和Pointcut
+	// Interceptor使用的是已经见过的拦截器：TransactionInterceptor
 	private TransactionInterceptor transactionInterceptor;
 
+	// 对于pointcut,这里定义了一个内部类TransactionAttributeSourcePointcut
+	// 在声明式事务处理中，通过对目标对象的方法调用进行拦截实现，
+	// 这个拦截通过AOP发挥作用。在AOP中，对于拦截的启动，首先需要对方法调用是否需要拦截进行判断，
+	// 而判断的依据是那些在TransactionProxyFactoryBean中为目标对象设置的事务属性。
+	// 也就是说，需要判断当前的目标方法调用是不是一个配置好的并且需要进行事务处理的方法调用。
+	// 具体来说，这个匹配判断在TransactionAttributeSourcePointcut中完成
+	// STEPINTO 分析 matchs 方法
 	private final TransactionAttributeSourcePointcut pointcut = new TransactionAttributeSourcePointcut() {
 		@Override
 		@Nullable
 		protected TransactionAttributeSource getTransactionAttributeSource() {
+			// 通过调用transactionInterceptor来得到事务的配置属性，在对Proxy的方法进行匹配调用时，会使用到这些配置属性
 			return (transactionInterceptor != null ? transactionInterceptor.getTransactionAttributeSource() : null);
 		}
 	};

@@ -71,6 +71,8 @@ public class NameMatchTransactionAttributeSource implements TransactionAttribute
 	 * @see #setNameMap
 	 * @see TransactionAttributeEditor
 	 */
+	// LUQIUDO
+	// 设置配置的事务方法
 	public void setProperties(Properties transactionAttributes) {
 		TransactionAttributeEditor tae = new TransactionAttributeEditor();
 		Enumeration<?> propNames = transactionAttributes.propertyNames();
@@ -100,15 +102,32 @@ public class NameMatchTransactionAttributeSource implements TransactionAttribute
 
 	@Override
 	@Nullable
+	/**
+	 * LUQIUDO
+	 *
+	 * 对调用的方法进行判断，判断它是否是事务方法，如果是事务方法，那么取出相应的事务配置属性.
+	 *
+	 * 首先，以调用方法名为索引在nameMap中查找相应的事务处理属性值，
+	 * 如果能够找到，那么就说明该调用方法和事务方法是直接对应的；
+	 * 如果找不到，那么就会遍历整个nameMap，对保存在nameMap中的每一个方法名，
+	 * 使用PatternMatchUtils的SimpleMatch方法进行命名模式上的匹配。
+	 * 这里使用PatternMatchUtils进行匹配的原因是，在设置事务方法的时候，
+	 * 可以不需要为事务方法设置一个完整的方法名，而可以通过设置方法名的命名模式来完成，
+	 * 比如可以通过对通配符*的使用等。所以，如果直接通过方法名没能够匹配上，
+	 * 而通过方法名的命名模式能够匹配上，这个方法也是需要进行事务处理的方法，
+	 * 相对应地，它所配置的事务处理属性也会从nameMap中取出来，从而触发事务处理拦截器的拦截。
+	 */
 	public TransactionAttribute getTransactionAttribute(Method method, @Nullable Class<?> targetClass) {
 		if (!ClassUtils.isUserLevelMethod(method)) {
 			return null;
 		}
 
 		// Look for direct name match.
+		// 判断当前目标调用的方法与配置的事务方法是否直接匹配
 		String methodName = method.getName();
 		TransactionAttribute attr = this.nameMap.get(methodName);
 
+		// 如果不能直接匹配，就通过调用PatternMatchUtils的simpleMatch方法来进行匹配判断
 		if (attr == null) {
 			// Look for most specific name match.
 			String bestNameMatch = null;
