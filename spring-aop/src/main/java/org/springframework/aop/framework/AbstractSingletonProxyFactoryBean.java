@@ -226,6 +226,9 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
 
 
 	@Override
+	// LUQIUDO
+	// 返回的是一个Proxy，这个Proxy是ProxyFactory生成的AOP代理，
+	// 已经封装了对事务处理的拦截器配置
 	public Object getObject() {
 		if (this.proxy == null) {
 			throw new FactoryBeanNotInitializedException();
