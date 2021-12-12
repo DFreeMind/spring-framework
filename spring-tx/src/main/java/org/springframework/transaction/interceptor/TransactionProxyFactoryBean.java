@@ -113,9 +113,21 @@ import org.springframework.transaction.PlatformTransactionManager;
  * @see org.springframework.aop.framework.ProxyFactoryBean
  */
 @SuppressWarnings("serial")
+/**
+ * LUQIUDO
+ * 在IoC容器进行注入的时候，会创建TransactionInterceptor对象，
+ * 而这个对象会创建一个TransactionAttributePointcut，为读取TransactionAttribute做准备。
+ * 在容器初始化的过程中，由于实现了InitializingBean接口，
+ * 因此AbstractSingletonProxyFactoryBean会实现afterPropertiesSet()方法，
+ * 正是在这个方法实例化了一个ProxyFactory，建立起Spring AOP的应用，
+ * 在这里，会为这个ProxyFactory设置通知、目标对象，并最终返回Proxy代理对象。
+ * 在Proxy代理对象建立起来以后，在调用其代理方法的时候，会调用相应的Transaction-Interceptor拦截器，
+ * 在这个调用中，会根据TransactionAttribute配置的事务属性进行配置，从而为事务处理做好准备。
+ */
 public class TransactionProxyFactoryBean extends AbstractSingletonProxyFactoryBean
 		implements BeanFactoryAware {
 
+	// 这个拦截器TransactionInterceptor通过AOP发挥作用，通过这个拦截器的实现，Spring封装了事务处理实现
 	private final TransactionInterceptor transactionInterceptor = new TransactionInterceptor();
 
 	@Nullable
@@ -127,6 +139,8 @@ public class TransactionProxyFactoryBean extends AbstractSingletonProxyFactoryBe
 	 * transaction management: This class is just a way of invoking it.
 	 * @see TransactionInterceptor#setTransactionManager
 	 */
+	// Set 方法实现依赖注入
+	// 通过依赖注入的PlatformTransactionManager
 	public void setTransactionManager(PlatformTransactionManager transactionManager) {
 		this.transactionInterceptor.setTransactionManager(transactionManager);
 	}
@@ -144,6 +158,8 @@ public class TransactionProxyFactoryBean extends AbstractSingletonProxyFactoryBe
 	 * @see TransactionAttributeEditor
 	 * @see NameMatchTransactionAttributeSource
 	 */
+	// 通过依赖注入的事务属性以Properties的形式出现
+	// 把从BeanDefinition中读到的事务管理的属性信息注入到TransactionInterceptor中
 	public void setTransactionAttributes(Properties transactionAttributes) {
 		this.transactionInterceptor.setTransactionAttributes(transactionAttributes);
 	}
@@ -191,13 +207,21 @@ public class TransactionProxyFactoryBean extends AbstractSingletonProxyFactoryBe
 	 * Creates an advisor for this FactoryBean's TransactionInterceptor.
 	 */
 	@Override
+	// 这里创建Spring AOP对事务处理的Advisor
+	// Spring的TransactionInterceptor配置是在什么时候被启动并成为Advisor通知器的一部分的呢？
+	// 答: createMainInterceptor方法在IoC容器完成Bean的依赖注入时，通过initializeBean方法被调用
+	// createMainInterceptor 方法会被 AbstractSinglonProxyFactoryBean 中的 afterPropertiesSet
+	// 调用, 进入AbstractSinglonProxyFactoryBean.afterPropertiesSet() 分许具体过程
 	protected Object createMainInterceptor() {
 		this.transactionInterceptor.afterPropertiesSet();
 		if (this.pointcut != null) {
+			// 使用默认的通知器DefaultPointcutAdvisor，并为通知器配置事务处理拦截器
 			return new DefaultPointcutAdvisor(this.pointcut, this.transactionInterceptor);
 		}
 		else {
 			// Rely on default pointcut.
+			// 如果没有配置pointcut，使用TransactionAttributeSourceAdvisor作为通知器，
+			// 并为通知器设置TransactionInterceptor作为拦截器
 			return new TransactionAttributeSourceAdvisor(this.transactionInterceptor);
 		}
 	}

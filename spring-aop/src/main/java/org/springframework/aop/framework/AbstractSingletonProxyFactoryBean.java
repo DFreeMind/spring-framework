@@ -138,7 +138,10 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
 
 
 	@Override
+	// LUQIUDO
+	// Spring事务处理完成AOP配置的地方
 	public void afterPropertiesSet() {
+		// 必须配置target的属性，同时需要target是一个bean reference
 		if (this.target == null) {
 			throw new IllegalArgumentException("Property 'target' is required");
 		}
@@ -149,6 +152,8 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
 			this.proxyClassLoader = ClassUtils.getDefaultClassLoader();
 		}
 
+		// TransactionProxyFactoryBean使用ProxyFactory完成AOP的基本功能
+		// 这个ProxyFactory提供Proxy对象，并将TransactionInterceptor设置为target方法调用的拦截器
 		ProxyFactory proxyFactory = new ProxyFactory();
 
 		if (this.preInterceptors != null) {
@@ -158,6 +163,11 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
 		}
 
 		// Add the main interceptor (typically an Advisor).
+		// 这里是Spring加入通知器的地方
+		// 可以加入两种通知器，分别是DefaultPointcutAdvisor和Transaction AttributeSourceAdvisor
+		// 这里调用TransactionProxyFactoryBean的createMainInterceptor方法来生成需要的Advisors
+		// 在ProxyFactory的基类AdvisedSupport中，维护了一个用来持有advice的LinkedList，
+		// 通过对这个LinkedList的元素执行添加、修改、删除等操作，用来管理配置给ProxyFactory的通知器
 		proxyFactory.addAdvisor(this.advisorAdapterRegistry.wrap(createMainInterceptor()));
 
 		if (this.postInterceptors != null) {
@@ -168,10 +178,12 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
 
 		proxyFactory.copyFrom(this);
 
+		// 创建AOP的目标源，与在其他地方使用ProxyFactory没有什么差别
 		TargetSource targetSource = createTargetSource(this.target);
 		proxyFactory.setTargetSource(targetSource);
 
 		if (this.proxyInterfaces != null) {
+			// 需要根据AOP基础设施来确定使用哪个接口作为代理
 			proxyFactory.setInterfaces(this.proxyInterfaces);
 		}
 		else if (!isProxyTargetClass()) {
@@ -183,7 +195,8 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
 		}
 
 		postProcessProxyFactory(proxyFactory);
-
+		// 设置代理对象
+		// STEPINTO 分析 getProxy
 		this.proxy = proxyFactory.getProxy(this.proxyClassLoader);
 	}
 

@@ -106,7 +106,10 @@ public class ProxyFactory extends ProxyCreatorSupport {
 	 * (or {@code null} for the low-level proxy facility's default)
 	 * @return the proxy object
 	 */
+	// LUQIUDO
+	// ProxyFactory是如何生成Proxy对象的，可以到ProxyFactory的实现中去了解一下
 	public Object getProxy(@Nullable ClassLoader classLoader) {
+		// STEPINTO 分析 createAopProxy(), 在基类 ProxyCreatorSupport 中实现
 		return createAopProxy().getProxy(classLoader);
 	}
 
