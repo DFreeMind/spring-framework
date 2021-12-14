@@ -299,7 +299,9 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 		// 不需要通过回调的方式来使用
 		if (txAttr == null || !(tm instanceof CallbackPreferringPlatformTransactionManager)) {
 			// Standard transaction demarcation with getTransaction and commit/rollback calls.
-			// 创建事务，同时把创建事务过程中得到的信息放到TransactionInfo中去，TransactionInfo是保存当前事务状态的对
+			// 创建事务，同时把创建事务过程中得到的信息放到TransactionInfo中去，
+			// TransactionInfo是保存当前事务状态的对
+			// STEPINTO 分析具体的事务创建过程
 			TransactionInfo txInfo = createTransactionIfNecessary(tm, txAttr, joinpointIdentification);
 
 			Object retVal;
@@ -320,6 +322,9 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 				cleanupTransactionInfo(txInfo);
 			}
 			// 通过事务处理器来对事务进行提交
+			// TransactionInfo对象是创建事务时生成的
+			// Spring的事务管理框架生成的TransactionStatus对象就包含在TransactionInfo对象中
+			// STEPINTO 分析事务的提交过程
 			commitTransactionAfterReturning(txInfo);
 			return retVal;
 		}
@@ -477,10 +482,21 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 	 * @see #getTransactionAttributeSource()
 	 */
 	@SuppressWarnings("serial")
+	/**
+	 * LUQIUDO
+	 *
+	 * 在createTransaction-IfNecessary方法的调用中，
+	 * 会向AbstractTransactionManager执行getTransaction()，
+	 * 这个获取Transaction事务对象的过程，在AbstractTransactionManager
+	 * 实现中需要对事务的情况做出不同的处理，然后，创建一个TransactionStatus，
+	 * 并把这个TransactionStatus设置到对应的TransactionInfo中去，
+	 * 同时将TransactionInfo和当前的线程绑定，从而完成事务的创建过程
+	 */
 	protected TransactionInfo createTransactionIfNecessary(@Nullable PlatformTransactionManager tm,
 			@Nullable TransactionAttribute txAttr, final String joinpointIdentification) {
 
 		// If no name specified, apply method identification as transaction name.
+		// 如果没有指定名字，使用方法特征来作为事务名
 		if (txAttr != null && txAttr.getName() == null) {
 			txAttr = new DelegatingTransactionAttribute(txAttr) {
 				@Override
@@ -490,9 +506,13 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 			};
 		}
 
+		// 这个TransactionStatus封装了事务执行的状态信息
 		TransactionStatus status = null;
 		if (txAttr != null) {
 			if (tm != null) {
+				// 使用了定义好的事务方法的配置信息
+				// 事务创建由事务处理器来完成，同时返回TransactionStatus来记录当前的事务状态，
+				// 包括已经创建的事务
 				status = tm.getTransaction(txAttr);
 			}
 			else {
@@ -502,6 +522,8 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 				}
 			}
 		}
+		// 准备TransactionInfo，TransactionInfo对象封装了事务处理的配置信息以及TransactionStatus
+		// STEPINTO 分析事务信息的准备过程
 		return prepareTransactionInfo(tm, txAttr, joinpointIdentification, status);
 	}
 
@@ -524,6 +546,8 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 				logger.trace("Getting transaction for [" + txInfo.getJoinpointIdentification() + "]");
 			}
 			// The transaction manager will flag an error if an incompatible tx already exists.
+			// TransactionInfo设置TransactionStatus，这个TransactionStatus很重要，
+			// 它持有管理事务处理需要的数据，比如，transaction对象就是由TransactionStatus来持有
 			txInfo.newTransactionStatus(status);
 		}
 		else {
@@ -538,6 +562,9 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 		// We always bind the TransactionInfo to the thread, even if we didn't create
 		// a new transaction here. This guarantees that the TransactionInfo stack
 		// will be managed correctly even if no transaction was created by this aspect.
+		// 这里把当前的TransactionInfo与线程绑定，同时在TransactionInfo中由一个变量来保存以前的TransactionInfo，
+		// 这样就持有了一连串与事务处理相关的TransactionInfo.
+		// 虽然不一定需要创建新的事务，但是总会在请求事务时创建TransactionInfo
 		txInfo.bindToThread();
 		return txInfo;
 	}
@@ -547,11 +574,15 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 	 * Do nothing if we didn't create a transaction.
 	 * @param txInfo information about the current transaction
 	 */
+	// 事务提交入口
 	protected void commitTransactionAfterReturning(@Nullable TransactionInfo txInfo) {
 		if (txInfo != null && txInfo.getTransactionStatus() != null) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("Completing transaction for [" + txInfo.getJoinpointIdentification() + "]");
 			}
+			// 到事务处理器中去看看事务是如何提交
+			// AbstractPlatformTransactionManager中也有一个模板方法支持具体的事务处理器对事务提交的实现
+			// STEPINTO 分析事务提交过程
 			txInfo.getTransactionManager().commit(txInfo.getTransactionStatus());
 		}
 	}
