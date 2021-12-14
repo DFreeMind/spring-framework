@@ -80,6 +80,17 @@ import org.springframework.transaction.UnexpectedRollbackException;
  * @see org.springframework.transaction.jta.JtaTransactionManager
  */
 @SuppressWarnings("serial")
+/**
+ * LUQIUDO
+ * AbstractPlatfromManager封装了Spring事务处理中通用的处理部分，
+ * 比如事务的创建、提交、回滚，事务状态和信息的处理，与线程的绑定等，
+ * 有了这些通用处理的支持，对于具体的事务管理器而言，它们只需要处理和具体数据源相关的组件设置就可以了，
+ * 比如在HibernateTransactionManager中，就只需要配置好和Hibnernate事务处理相关的接口以及相关的设置。
+ *
+ * 从这个类设计关系上，我们也可以看到，Spring事务处理的主要过程是分两个部分完成的，
+ * 通用的事务处理框架是在AbstractPlatformManager中完成，而Spring的事务接口与数据源实现的接口，
+ * 多半是由具体的事务管理器来完成，它们都是作为AbstractPlatformManager的子类来是使用的
+ */
 public abstract class AbstractPlatformTransactionManager implements PlatformTransactionManager, Serializable {
 
 	/**
