@@ -68,6 +68,7 @@ public abstract class RemoteInvocationBasedExporter extends RemoteExporter {
 	 * @throws InvocationTargetException if the method invocation resulted in an exception
 	 * @see RemoteInvocationExecutor#invoke
 	 */
+	// LUQIUDO
 	protected Object invoke(RemoteInvocation invocation, Object targetObject)
 			throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
 
@@ -75,6 +76,9 @@ public abstract class RemoteInvocationBasedExporter extends RemoteExporter {
 			logger.trace("Executing " + invocation);
 		}
 		try {
+			// 调用RemoteInvocationExecutor，这个执行器是DefaultRemoteInvocationExecutor
+			// 调用在 DefaultRemoteInvocationExecutor  中
+			// STEPINTO
 			return getRemoteInvocationExecutor().invoke(invocation, targetObject);
 		}
 		catch (NoSuchMethodException ex) {
@@ -109,6 +113,8 @@ public abstract class RemoteInvocationBasedExporter extends RemoteExporter {
 	 * @return the invocation result
 	 * @see #invoke
 	 */
+	// LUQIUDO
+	// 远端服务调用结果
 	protected RemoteInvocationResult invokeAndCreateResult(RemoteInvocation invocation, Object targetObject) {
 		try {
 			Object value = invoke(invocation, targetObject);

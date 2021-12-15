@@ -138,6 +138,8 @@ public abstract class RemoteInvocationSerializingExporter extends RemoteInvocati
 	 * @throws ClassNotFoundException if case of a transferred class not
 	 * being found in the local ClassLoader
 	 */
+	// LUQIUDO
+	// 读取ObjectInputStream，然后作为RemoteInvocation返回
 	protected RemoteInvocation doReadRemoteInvocation(ObjectInputStream ois)
 			throws IOException, ClassNotFoundException {
 

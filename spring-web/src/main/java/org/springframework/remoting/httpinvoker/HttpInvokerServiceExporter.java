@@ -71,12 +71,17 @@ public class HttpInvokerServiceExporter extends RemoteInvocationSerializingExpor
 	 * @see #writeRemoteInvocationResult(HttpServletRequest, HttpServletResponse, RemoteInvocationResult)
 	 */
 	@Override
+	// LUQIUDO
+	// Controller的执行入口，对相应的HttpRequest进行响应
 	public void handleRequest(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
 		try {
+			// 从HttpRequest中得到序列化的RemoteInvocation对象
+			// STEPINTO
 			RemoteInvocation invocation = readRemoteInvocation(request);
 			RemoteInvocationResult result = invokeAndCreateResult(invocation, getProxy());
+			// 通过HttpResponse返回服务对象的结果
 			writeRemoteInvocationResult(request, response, result);
 		}
 		catch (ClassNotFoundException ex) {
@@ -112,11 +117,14 @@ public class HttpInvokerServiceExporter extends RemoteInvocationSerializingExpor
 	 * @throws IOException in case of I/O failure
 	 * @throws ClassNotFoundException if thrown during deserialization
 	 */
+	// LUQIUDO
 	protected RemoteInvocation readRemoteInvocation(HttpServletRequest request, InputStream is)
 			throws IOException, ClassNotFoundException {
 
+		// 从ObjectInputStream中反序列化对象，同时转化成RemoteInvocation
 		ObjectInputStream ois = createObjectInputStream(decorateInputStream(request, is));
 		try {
+			// STEPINTO
 			return doReadRemoteInvocation(ois);
 		}
 		finally {
@@ -145,11 +153,14 @@ public class HttpInvokerServiceExporter extends RemoteInvocationSerializingExpor
 	 * @param result the RemoteInvocationResult object
 	 * @throws IOException in case of I/O failure
 	 */
+	// LUQIUDO
 	protected void writeRemoteInvocationResult(
 			HttpServletRequest request, HttpServletResponse response, RemoteInvocationResult result)
 			throws IOException {
 
+		// 设置Response的ContentType属性为application/x-java-serialized-object
 		response.setContentType(getContentType());
+		// STEPINTO
 		writeRemoteInvocationResult(request, response, result, response.getOutputStream());
 	}
 
@@ -168,6 +179,8 @@ public class HttpInvokerServiceExporter extends RemoteInvocationSerializingExpor
 	 * @see #decorateOutputStream
 	 * @see #doWriteRemoteInvocationResult
 	 */
+	// LUQIUDO
+	// 输出到HTTP的Response，然后把Response关闭
 	protected void writeRemoteInvocationResult(
 			HttpServletRequest request, HttpServletResponse response, RemoteInvocationResult result, OutputStream os)
 			throws IOException {
