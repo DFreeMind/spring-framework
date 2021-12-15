@@ -142,15 +142,20 @@ public class HttpInvokerClientInterceptor extends RemoteInvocationBasedAccessor
 
 
 	@Override
+	// 对代理对象的方法调用入口
 	public Object invoke(MethodInvocation methodInvocation) throws Throwable {
 		if (AopUtils.isToStringMethod(methodInvocation.getMethod())) {
 			return "HTTP invoker proxy for service URL [" + getServiceUrl() + "]";
 		}
-
+		// 创建RemoteInvocation对象，这个对象封装了对远端的调用，这些远端调用通过序列化机制完成
+		// RemoteInvocation 由 DefaultRemoteInvocationFactory 创建
 		RemoteInvocation invocation = createRemoteInvocation(methodInvocation);
 		RemoteInvocationResult result;
 
 		try {
+			// 对远端调用的入口
+			// 通过HttpInvokerRequestExecutor的executeRequest来完成调用
+			// STEPINTO
 			result = executeRequest(invocation, methodInvocation);
 		}
 		catch (Throwable ex) {
@@ -159,6 +164,7 @@ public class HttpInvokerClientInterceptor extends RemoteInvocationBasedAccessor
 		}
 
 		try {
+			// 返回远端调用的结果
 			return recreateRemoteInvocationResult(result);
 		}
 		catch (Throwable ex) {
@@ -184,7 +190,7 @@ public class HttpInvokerClientInterceptor extends RemoteInvocationBasedAccessor
 	 */
 	protected RemoteInvocationResult executeRequest(
 			RemoteInvocation invocation, MethodInvocation originalInvocation) throws Exception {
-
+		// STEPINTO
 		return executeRequest(invocation);
 	}
 
@@ -203,6 +209,8 @@ public class HttpInvokerClientInterceptor extends RemoteInvocationBasedAccessor
 	 * @see HttpInvokerClientConfiguration
 	 */
 	protected RemoteInvocationResult executeRequest(RemoteInvocation invocation) throws Exception {
+		// STEPINTO 具体的调用在 SimpleHttpInvokerRequestExecutor
+		// 的父类 AbstractHttpInvokerRequestExecutor 中
 		return getHttpInvokerRequestExecutor().executeRequest(this, invocation);
 	}
 

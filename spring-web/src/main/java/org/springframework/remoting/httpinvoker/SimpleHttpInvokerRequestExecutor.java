@@ -81,16 +81,29 @@ public class SimpleHttpInvokerRequestExecutor extends AbstractHttpInvokerRequest
 	 * @see #readResponseBody
 	 */
 	@Override
+	// LUQIUDO
+	// 这是HTTP调用器实现的基本过程，
+	// 通过HTTP的request和reponse来完成通信，
+	// 在通信的过程中传输的数据是序列化的对象
 	protected RemoteInvocationResult doExecuteRequest(
 			HttpInvokerClientConfiguration config, ByteArrayOutputStream baos)
 			throws IOException, ClassNotFoundException {
 
+		// 打开一个标准J2SE HttpURLConnection
 		HttpURLConnection con = openConnection(config);
+		// STEPINTO
 		prepareConnection(con, baos.size());
+		// 远端调用封装成RemoteInvocation对象，
+		// 这个对象通过序列化被写到对应的HttpURLConnection中去
+		// STEPINTO
 		writeRequestBody(config, con, baos);
+		// 取得远端服务返回的结果，然后把结果转换成RemoteInvocationResult返回
 		validateResponse(config, con);
+		// STEPINTO
 		InputStream responseBody = readResponseBody(config, con);
 
+		// 封装远程调用结果
+		// STEPINTO
 		return readRemoteInvocationResult(responseBody, config.getCodebaseUrl());
 	}
 
@@ -122,6 +135,9 @@ public class SimpleHttpInvokerRequestExecutor extends AbstractHttpInvokerRequest
 	 * @see java.net.HttpURLConnection#setRequestMethod
 	 * @see java.net.HttpURLConnection#setRequestProperty
 	 */
+	// LUQIUDO
+	// 为使用HttpURLConnection来完成对象序列化，需要进行一系列的配置
+	// 比如配置请求方式为post，请求属性等
 	protected void prepareConnection(HttpURLConnection connection, int contentLength) throws IOException {
 		if (this.connectTimeout >= 0) {
 			connection.setConnectTimeout(this.connectTimeout);
@@ -161,6 +177,8 @@ public class SimpleHttpInvokerRequestExecutor extends AbstractHttpInvokerRequest
 	 * @see java.net.HttpURLConnection#getOutputStream()
 	 * @see java.net.HttpURLConnection#setRequestProperty
 	 */
+	// LUQIUDO
+	// 把序列化对象输出到HttpURLConnection中
 	protected void writeRequestBody(
 			HttpInvokerClientConfiguration config, HttpURLConnection con, ByteArrayOutputStream baos)
 			throws IOException {
@@ -204,15 +222,19 @@ public class SimpleHttpInvokerRequestExecutor extends AbstractHttpInvokerRequest
 	 * @see java.net.HttpURLConnection#getHeaderField(int)
 	 * @see java.net.HttpURLConnection#getHeaderFieldKey(int)
 	 */
+	// LUQIUDO
+	// 获得HTTP响应的IO流
 	protected InputStream readResponseBody(HttpInvokerClientConfiguration config, HttpURLConnection con)
 			throws IOException {
 
+		// 如果是通过gzip压缩，那么需要先解压缩
 		if (isGzipResponse(con)) {
 			// GZIP response found - need to unzip.
 			return new GZIPInputStream(con.getInputStream());
 		}
 		else {
 			// Plain response found.
+			// 正常的HTTP响应输出
 			return con.getInputStream();
 		}
 	}

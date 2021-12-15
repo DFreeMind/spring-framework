@@ -54,23 +54,31 @@ import org.springframework.util.Assert;
  * @see org.springframework.remoting.rmi.RmiProxyFactoryBean
  * @see org.springframework.remoting.caucho.HessianProxyFactoryBean
  */
+// LUQIUDO
 public class HttpInvokerProxyFactoryBean extends HttpInvokerClientInterceptor implements FactoryBean<Object> {
 
 	@Nullable
+	// 远端对象的代理
 	private Object serviceProxy;
 
 
 	@Override
+	// 在注入完成之后，设置远端对象代理
 	public void afterPropertiesSet() {
 		super.afterPropertiesSet();
+		// 需要配置远端调用的接口
 		Class<?> ifc = getServiceInterface();
 		Assert.notNull(ifc, "Property 'serviceInterface' is required");
+		// 这里使用ProxyFactory来生成远端代理对象，
+		// 注意这个this,因为HttpInvokerProxyFactoryBean的基类是HttpInvokerClientInterceptor，
+		// 所以代理类的拦截器被设置为HttpInvokerClientInterceptor
 		this.serviceProxy = new ProxyFactory(ifc, this).getProxy(getBeanClassLoader());
 	}
 
 
 	@Override
 	@Nullable
+	// FactoryBean生产对象的入口。返回的是serviceProxy对象，这是一个代理对象
 	public Object getObject() {
 		return this.serviceProxy;
 	}

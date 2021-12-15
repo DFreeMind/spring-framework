@@ -129,6 +129,7 @@ public abstract class AbstractHttpInvokerRequestExecutor implements HttpInvokerR
 
 
 	@Override
+	// LUQIUDO
 	public final RemoteInvocationResult executeRequest(
 			HttpInvokerClientConfiguration config, RemoteInvocation invocation) throws Exception {
 
@@ -137,6 +138,7 @@ public abstract class AbstractHttpInvokerRequestExecutor implements HttpInvokerR
 			logger.debug("Sending HTTP invoker request for service at [" + config.getServiceUrl() +
 					"], with size " + baos.size());
 		}
+		// STEPINTO 具体调用 SimpleHttpInvokerRequestExecutor 中的 doExecuteRequest
 		return doExecuteRequest(config, baos);
 	}
 
@@ -237,6 +239,8 @@ public abstract class AbstractHttpInvokerRequestExecutor implements HttpInvokerR
 	 * @see #createObjectInputStream
 	 * @see #doReadRemoteInvocationResult
 	 */
+	// LUQIUDO
+	// 把返回的对象封装到RemoteInvocationResult中
 	protected RemoteInvocationResult readRemoteInvocationResult(InputStream is, @Nullable String codebaseUrl)
 			throws IOException, ClassNotFoundException {
 
