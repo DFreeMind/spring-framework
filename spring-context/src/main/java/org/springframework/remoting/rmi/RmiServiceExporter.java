@@ -66,6 +66,9 @@ import org.springframework.lang.Nullable;
  * @see org.springframework.remoting.caucho.HessianServiceExporter
  * @see org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter
  */
+// LUQIUDO
+// 在RMI的导出器中，建立RMI服务器端的实现，
+// 主要集中在prepare方法中，这个方法在afterPropertiesSet中调用
 public class RmiServiceExporter extends RmiBasedExporter implements InitializingBean, DisposableBean {
 
 	private String serviceName;
@@ -226,7 +229,11 @@ public class RmiServiceExporter extends RmiBasedExporter implements Initializing
 
 
 	@Override
+	// LUQIUDO
+	// 在afterPropertiesSet方法中，
+	// 开始建立RMI服务器端的基础设施，在prepare方法中实现
 	public void afterPropertiesSet() throws RemoteException {
+		// STEPINTO
 		prepare();
 	}
 
@@ -235,7 +242,9 @@ public class RmiServiceExporter extends RmiBasedExporter implements Initializing
 	 * <p>Creates an RMI registry on the specified port if none exists.
 	 * @throws RemoteException if service registration failed
 	 */
+	// LUQIUDO
 	public void prepare() throws RemoteException {
+		// 检查提供服务的Bean和serviceName属性是否设置正确，如果没有设置，抛出异常
 		checkService();
 
 		if (this.serviceName == null) {
@@ -271,6 +280,9 @@ public class RmiServiceExporter extends RmiBasedExporter implements Initializing
 		}
 
 		// Initialize and cache exported object.
+		// LUQIUDO
+		// 这里是取得服务对象的地方，需要根据服务的设置来完成服务对象的获取，
+		// 如果服务对象实现了Java的Remote接口，那么取得的是标准的RMI服务；否则，使用RMI调用器
 		this.exportedObject = getObjectToExport();
 
 		if (logger.isInfoEnabled()) {
@@ -287,6 +299,7 @@ public class RmiServiceExporter extends RmiBasedExporter implements Initializing
 		}
 
 		// Bind RMI object to registry.
+		// 把RMI服务对象和注册器绑定，供客户端查询
 		try {
 			if (this.replaceExistingBinding) {
 				this.registry.rebind(this.serviceName, this.exportedObject);
