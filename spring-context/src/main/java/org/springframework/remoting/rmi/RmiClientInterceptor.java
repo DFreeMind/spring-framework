@@ -131,8 +131,12 @@ public class RmiClientInterceptor extends RemoteInvocationBasedAccessor
 
 
 	@Override
+	// LUQIUDO
+	// 建立RMI基础设施的调用，仍然是在afterPropertiesSet()方法中实现。
+	// 因为这个RmiClientInterceptor实现了InitializingBean接口，所以它会被IoC容器回调
 	public void afterPropertiesSet() {
 		super.afterPropertiesSet();
+		// STEPINTO
 		prepare();
 	}
 
@@ -142,9 +146,14 @@ public class RmiClientInterceptor extends RemoteInvocationBasedAccessor
 	 * @see #setLookupStubOnStartup
 	 * @see #lookupStub
 	 */
+	// LUQIUDO
+	// 这里为RMI客户端准备stub，这个stub通过lookupStub()方法获得，
+	// 并且会在第一次生成之后，放到缓存中去
 	public void prepare() throws RemoteLookupFailureException {
 		// Cache RMI stub on initialization?
+		// 是否在初始化时缓存RMI Stub
 		if (this.lookupStubOnStartup) {
+			// STEPINTO
 			Remote remoteObj = lookupStub();
 			if (logger.isDebugEnabled()) {
 				if (remoteObj instanceof RmiInvocationHandler) {
@@ -174,6 +183,7 @@ public class RmiClientInterceptor extends RemoteInvocationBasedAccessor
 	 * @see #setCacheStub
 	 * @see java.rmi.Naming#lookup
 	 */
+	// 获得RMI stub对象的地方
 	protected Remote lookupStub() throws RemoteLookupFailureException {
 		try {
 			Remote stub = null;
@@ -255,9 +265,14 @@ public class RmiClientInterceptor extends RemoteInvocationBasedAccessor
 	 * @see java.rmi.NoSuchObjectException
 	 */
 	@Override
+	// LUQIUDO
+	// 获取了stub之后，当调用RMI客户端的代理方法时，
+	// 会触发拦截器RmiClientInterceptor的invoke回调方法
+	// 拦截器对代理对象方法调用的回调，在实现中，取得RMI stub对象，然后调用doInvoke完成RMI调用
 	public Object invoke(MethodInvocation invocation) throws Throwable {
 		Remote stub = getStub();
 		try {
+			// STEPINTO
 			return doInvoke(invocation, stub);
 		}
 		catch (RemoteConnectFailureException ex) {
@@ -342,6 +357,9 @@ public class RmiClientInterceptor extends RemoteInvocationBasedAccessor
 	 * @throws Throwable in case of invocation failure
 	 */
 	@Nullable
+	// LUQIUDO
+	// 具体的RMI调用发生的地方，如果stub是RmiInvocationHandler实例，
+	// 那么使用RMI调用器来完成这次远端调用；否则，使用传统的RMI调用方式
 	protected Object doInvoke(MethodInvocation invocation, Remote stub) throws Throwable {
 		if (stub instanceof RmiInvocationHandler) {
 			// RMI invoker

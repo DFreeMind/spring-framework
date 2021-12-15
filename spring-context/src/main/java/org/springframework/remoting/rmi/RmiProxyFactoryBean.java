@@ -58,13 +58,20 @@ import org.springframework.util.Assert;
  * @see org.springframework.remoting.caucho.HessianProxyFactoryBean
  * @see org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean
  */
+// LUQIUDO
+// RMI客户端基础设施的封装是由拦截器RmiClientInterceptor来完成的，
+// 这个拦截器的设置是在RmiProxyFactoryBean生成的代理对象中完成的
 public class RmiProxyFactoryBean extends RmiClientInterceptor implements FactoryBean<Object>, BeanClassLoaderAware {
 
+	// 通过ProxyFactory生成的代理对象，代理对象的代理方法和拦截器都会在其生成时设置好
 	private Object serviceProxy;
 
 
 	@Override
+	// 在依赖注入完成以后，容器回调afterPropertiesSet，
+	// 通过ProxyFactory生成代理对象，这个代理对象的拦截器是RmiClientInterceptor
 	public void afterPropertiesSet() {
+		// STEPINTO
 		super.afterPropertiesSet();
 		Class<?> ifc = getServiceInterface();
 		Assert.notNull(ifc, "Property 'serviceInterface' is required");
@@ -73,6 +80,7 @@ public class RmiProxyFactoryBean extends RmiClientInterceptor implements Factory
 
 
 	@Override
+	// FactoryBean的接口方法，返回生成的代理对象serviceProxy
 	public Object getObject() {
 		return this.serviceProxy;
 	}
