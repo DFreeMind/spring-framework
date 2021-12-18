@@ -256,6 +256,21 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * Return the EntityResolver to use, building a default resolver
 	 * if none specified.
 	 */
+	/**
+	 * LUQIUDO
+	 * 在loadDocument方法中涉及一个参数EntityResolver，何为EntityResolver？
+	 * 官网这样解释: 如果SAX应用程序需要实现自定义处理外部实体，
+	 * 则必须实现此接口并使用setEntityResolver方法向SAX驱动器注册一个实例。
+	 * 也就是说，对于解析一个XML，SAX首先读取该XML文档上的声明，根据声明去寻找相应的DTD定义，
+	 * 以便对文档进行一个验证。默认的寻找规则，即通过网络（实现上就是声明的DTD的URI地址）来下载相应的DTD声明，
+	 * 并进行认证。下载的过程是一个漫长的过程，而且当网络中断或不可用时，这里会报错，
+	 * 就是因为相应的DTD声明没有被找到的原因。
+	 *
+	 * EntityResolver的作用是项目本身就可以提供一个如何寻找DTD声明的方法，
+	 * 即由程序来实现寻找DTD声明的过程，比如我们将DTD文件放到项目中某处，
+	 * 在实现时直接将此文档读取并返回给SAX即可。这样就避免了通过网络来寻找相应的声明
+	 */
+	// STEPTINO 分析 EntityResolver
 	protected EntityResolver getEntityResolver() {
 		if (this.entityResolver == null) {
 			// Determine default EntityResolver to use.
@@ -264,6 +279,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 				this.entityResolver = new ResourceEntityResolver(resourceLoader);
 			}
 			else {
+				// STEPINTO 分析 DelegatingEntityResolver 中的  resolveEntity
 				this.entityResolver = new DelegatingEntityResolver(getBeanClassLoader());
 			}
 		}
@@ -303,6 +319,9 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	// LUQIUDO
 	// 这里是调用的入口, 来源于 AbstractBeanDefinitionReader
 	public int loadBeanDefinitions(Resource resource) throws BeanDefinitionStoreException {
+		// EncodedResource 主要对资源文件的编码进行处理, 主题逻辑在 getReader 中,
+		// 中，当设置了编码属性的时候Spring会使用相应的编码作为输入流的编码。
+		// STEPINTO 分析 EncodedResource 和 loadBeanDefinition
 		return loadBeanDefinitions(new EncodedResource(resource));
 	}
 
@@ -313,13 +332,14 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * @return the number of bean definitions found
 	 * @throws BeanDefinitionStoreException in case of loading or parsing errors
 	 */
+	// LUQIUDO
 	// 载入 XML 形式的 BeanDefinition 的地方
 	public int loadBeanDefinitions(EncodedResource encodedResource) throws BeanDefinitionStoreException {
 		Assert.notNull(encodedResource, "EncodedResource must not be null");
 		if (logger.isInfoEnabled()) {
 			logger.info("Loading XML bean definitions from " + encodedResource);
 		}
-
+		// 通过属性来记录已经加载的资源
 		Set<EncodedResource> currentResources = this.resourcesCurrentlyBeingLoaded.get();
 		if (currentResources == null) {
 			currentResources = new HashSet<>(4);
@@ -331,16 +351,20 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 		}
 		// 得到 XML 文件, 并得到 IO 的 InputSource准备进行读取
 		try {
+			// 从encodedResource中获取已经封装的Resource对象并再次从Resource中获取其中的inputStream
 			InputStream inputStream = encodedResource.getResource().getInputStream();
 			try {
+				// InputSource这个类并不来自于Spring，它的全路径是org.xml.sax.InputSource
 				InputSource inputSource = new InputSource(inputStream);
 				if (encodedResource.getEncoding() != null) {
 					inputSource.setEncoding(encodedResource.getEncoding());
 				}
-				// 具体的读取读入过程
+				// 具体的读取读入过程, 真正的核心逻辑
+				// STEPINTO 分析加载古城
 				return doLoadBeanDefinitions(inputSource, encodedResource.getResource());
 			}
 			finally {
+				// 关闭输入流
 				inputStream.close();
 			}
 		}
@@ -397,9 +421,11 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 		try {
 			// 这里取得 XML文件的 Document 对象，这个解析过程是由 documentLoader 完成,
 			// 这个 documentLoader 是 DefaultDocumentLoader,在定义 documentLoader 的地方创建
+			// STEPINTO 分析 getValidationModeForResource
 			Document doc = doLoadDocument(inputSource, resource);
 			// 这里启动的是对 BeanDefinition解析的详细过程，这个解析会使用到 Spring 的 Bean配置规则
 			// 具体的过程是在 BeanDefinitionDocumentReader 中完成
+			// STEPINTO 分析具体的解析和注册 Bean 的过程
 			return registerBeanDefinitions(doc, resource);
 		}
 		catch (BeanDefinitionStoreException ex) {
@@ -437,6 +463,10 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * @see DocumentLoader#loadDocument
 	 */
 	protected Document doLoadDocument(InputSource inputSource, Resource resource) throws Exception {
+		// STEPINTO getValidationModeForResource()
+		// STEPTINO loadDocument() 实际的加载过程是委托给了 DocumentLoader 执行，
+		// 该接口的实现为 DefaultDocumentLoader
+		// STEPINTO getEntityResolver()
 		return this.documentLoader.loadDocument(inputSource, getEntityResolver(), this.errorHandler,
 				getValidationModeForResource(resource), isNamespaceAware());
 	}
@@ -449,11 +479,16 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * mode, even when something other than {@link #VALIDATION_AUTO} was set.
 	 * @see #detectValidationMode
 	 */
+	// LUQIUDO
+	// 获取 XML 的验证方式
 	protected int getValidationModeForResource(Resource resource) {
 		int validationModeToUse = getValidationMode();
+		// 如果手动指定了验证模式则使用指定的验证模式
 		if (validationModeToUse != VALIDATION_AUTO) {
 			return validationModeToUse;
 		}
+		// 如果未指定则使用自动检测
+		// 最终委托给 XmlValidationModeDetector 来完成
 		int detectedMode = detectValidationMode(resource);
 		if (detectedMode != VALIDATION_AUTO) {
 			return detectedMode;
@@ -492,6 +527,8 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 		}
 
 		try {
+			// LUQIUDO
+			// STEPINTO
 			return this.validationModeDetector.detectValidationMode(inputStream);
 		}
 		catch (IOException ex) {
@@ -517,6 +554,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 		// LUQIUDO
 		// 这里得到 BeanDefinitionDocumentReader 来对 XML的 BeanDefinition 进行解析
 		BeanDefinitionDocumentReader documentReader = createBeanDefinitionDocumentReader();
+		// 记录统计前BeanDefinition的加载个数
 		int countBefore = getRegistry().getBeanDefinitionCount();
 		// 具体的解析过程在这个 registerBeanDefinitions 中完成
 		// 按照 Spring 的 Bean 规则进行解析, registerBeanDefinitions 为接口方法
@@ -527,6 +565,8 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 		// -> parseBeanDefinitions (DefaultBeanDefinitionDocumentReader)
 		// -> parseDefaultElement (DefaultBeanDefinitionDocumentReader)
 		// -> processBeanDefinition (DefaultBeanDefinitionDocumentReader)
+		// 加载及其注册 Bean
+		// STEPTINO BeanDefinitionDocumentReader 的具体实现为 DefaultBeanDefinitionDocumentReader
 		documentReader.registerBeanDefinitions(doc, createReaderContext(resource));
 		return getRegistry().getBeanDefinitionCount() - countBefore;
 	}

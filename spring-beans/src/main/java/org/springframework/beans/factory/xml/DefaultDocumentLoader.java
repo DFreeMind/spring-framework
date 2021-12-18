@@ -66,17 +66,20 @@ public class DefaultDocumentLoader implements DocumentLoader {
 	 * XML parser.
 	 */
 	@Override
+	// LUQIUDO
+	// 文档加载实际调用地方
 	public Document loadDocument(InputSource inputSource, EntityResolver entityResolver,
 			ErrorHandler errorHandler, int validationMode, boolean namespaceAware) throws Exception {
 
+		// 首先创建 DocumentBuilderFactory
 		DocumentBuilderFactory factory = createDocumentBuilderFactory(validationMode, namespaceAware);
 		if (logger.isDebugEnabled()) {
 			logger.debug("Using JAXP provider [" + factory.getClass().getName() + "]");
 		}
+		// 再通过 DocumentBuilderFactory 创建 DocumentBuilder
 		DocumentBuilder builder = createDocumentBuilder(factory, entityResolver, errorHandler);
 		return builder.parse(inputSource);
 	}
-
 	/**
 	 * Create the {@link DocumentBuilderFactory} instance.
 	 * @param validationMode the type of validation: {@link XmlValidationModeDetector#VALIDATION_DTD DTD}

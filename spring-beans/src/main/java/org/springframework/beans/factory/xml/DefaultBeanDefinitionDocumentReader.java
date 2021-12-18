@@ -91,10 +91,14 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	 * specified at the {@code <beans/>} level; then parses the contained bean definitions.
 	 */
 	@Override
+	// LUQIUDO
+	// 这个方法的重要目的之一就是提取root，以便于再次将root作为参数继续BeanDefinition的注册
 	public void registerBeanDefinitions(Document doc, XmlReaderContext readerContext) {
 		this.readerContext = readerContext;
 		logger.debug("Loading bean definitions");
 		Element root = doc.getDocumentElement();
+		// 核心逻辑的底部
+		// STEPINTO
 		doRegisterBeanDefinitions(root);
 	}
 
@@ -126,10 +130,12 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		// the new (child) delegate with a reference to the parent for fallback purposes,
 		// then ultimately reset this.delegate back to its original (parent) reference.
 		// this behavior emulates a stack of delegates without actually necessitating one.
+		// 专门处理解析
 		BeanDefinitionParserDelegate parent = this.delegate;
 		this.delegate = createDelegate(getReaderContext(), root, parent);
 
 		if (this.delegate.isDefaultNamespace(root)) {
+			// 处理 profile 属性
 			String profileSpec = root.getAttribute(PROFILE_ATTRIBUTE);
 			if (StringUtils.hasText(profileSpec)) {
 				String[] specifiedProfiles = StringUtils.tokenizeToStringArray(
@@ -144,9 +150,11 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 			}
 		}
 
+		// 解析前处理，留给子类实现
 		preProcessXml(root);
 		// STEPINTO
 		parseBeanDefinitions(root, this.delegate);
+		// 解析后处理，留给子类实现
 		postProcessXml(root);
 
 		this.delegate = parent;
@@ -165,7 +173,9 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	 * "import", "alias", "bean".
 	 * @param root the DOM root element of the document
 	 */
+	// LUQIUDO
 	protected void parseBeanDefinitions(Element root, BeanDefinitionParserDelegate delegate) {
+		// 对 Beans 处理
 		if (delegate.isDefaultNamespace(root)) {
 			NodeList nl = root.getChildNodes();
 			for (int i = 0; i < nl.getLength(); i++) {
@@ -173,10 +183,11 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 				if (node instanceof Element) {
 					Element ele = (Element) node;
 					if (delegate.isDefaultNamespace(ele)) {
-						// STEPINTO
+						// STEPINTO 对 Bean 处理, 默认命名空间
 						parseDefaultElement(ele, delegate);
 					}
 					else {
+						// 对 Bean 处理, 自定义命名空间
 						delegate.parseCustomElement(ele);
 					}
 				}
@@ -342,6 +353,8 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	 * underlying XML resource, through the corresponding accessors.
 	 * @see #getReaderContext()
 	 */
+	// LUQIUDO
+	// 留给子类实现
 	protected void preProcessXml(Element root) {
 	}
 
@@ -355,6 +368,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	 * underlying XML resource, through the corresponding accessors.
 	 * @see #getReaderContext()
 	 */
+	// 留给子类实现
 	protected void postProcessXml(Element root) {
 	}
 

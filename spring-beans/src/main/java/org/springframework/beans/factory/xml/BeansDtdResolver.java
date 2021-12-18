@@ -53,6 +53,8 @@ public class BeansDtdResolver implements EntityResolver {
 
 	@Override
 	@Nullable
+	// LUQIUDO
+	// DTD 类型解析
 	public InputSource resolveEntity(@Nullable String publicId, @Nullable String systemId) throws IOException {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Trying to resolve XML entity with public ID [" + publicId +

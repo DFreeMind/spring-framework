@@ -79,14 +79,18 @@ public class DelegatingEntityResolver implements EntityResolver {
 
 	@Override
 	@Nullable
+	// LUQIUIDO
 	public InputSource resolveEntity(@Nullable String publicId, @Nullable String systemId)
 			throws SAXException, IOException {
 
 		if (systemId != null) {
 			if (systemId.endsWith(DTD_SUFFIX)) {
+				// 如果是dtd从这里解析
+				// STEPTINO BeansDtdResolver 中的 resolveEntity
 				return this.dtdResolver.resolveEntity(publicId, systemId);
 			}
 			else if (systemId.endsWith(XSD_SUFFIX)) {
+				// 通过调用META-INF/Spring.schemas解析
 				return this.schemaResolver.resolveEntity(publicId, systemId);
 			}
 		}

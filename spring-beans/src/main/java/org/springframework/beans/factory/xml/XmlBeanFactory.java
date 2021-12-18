@@ -63,6 +63,8 @@ public class XmlBeanFactory extends DefaultListableBeanFactory {
 	 * @param resource XML resource to load bean definitions from
 	 * @throws BeansException in case of loading or parsing errors
 	 */
+	// LUQIUDO
+	// 通过 Resource 来初始化 XmlBeanFactory
 	public XmlBeanFactory(Resource resource) throws BeansException {
 		this(resource, null);
 	}
@@ -74,8 +76,12 @@ public class XmlBeanFactory extends DefaultListableBeanFactory {
 	 * @param parentBeanFactory parent bean factory
 	 * @throws BeansException in case of loading or parsing errors
 	 */
+	// parentBeanFactory为父类BeanFactory用于factory合并
 	public XmlBeanFactory(Resource resource, BeanFactory parentBeanFactory) throws BeansException {
+		// STEPINTO 分析调用过程
 		super(parentBeanFactory);
+		// 加载资源的实现
+		// STEPINTO 分析具体的加载过程
 		this.reader.loadBeanDefinitions(resource);
 	}
 
