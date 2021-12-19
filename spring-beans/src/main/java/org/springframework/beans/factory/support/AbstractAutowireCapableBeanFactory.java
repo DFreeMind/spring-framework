@@ -465,6 +465,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		// Make sure bean class is actually resolved at this point, and
 		// clone the bean definition in case of a dynamically resolved Class
 		// which cannot be stored in the shared merged bean definition.
+		// 锁定class,根据设置的class属性或者根据className来解析Class
 		Class<?> resolvedClass = resolveBeanClass(mbd, beanName);
 		if (resolvedClass != null && !mbd.hasBeanClass() && mbd.getBeanClassName() != null) {
 			mbdToUse = new RootBeanDefinition(mbd);
@@ -473,6 +474,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		// Prepare method overrides.
 		try {
+			// ✨
+			// 验证及准备覆盖的方法
+			// STEPINTO 分析处理 lookup-method 和 replace-method 两个属性
 			mbdToUse.prepareMethodOverrides();
 		}
 		catch (BeanDefinitionValidationException ex) {
@@ -483,7 +487,15 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		try {
 			// 如果 Bean 配置了 PostProcessor，那么这里返回的是一个 proxy
 			// Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
+			// 给BeanPostProcessors一个机会来返回代理来替代真正的实例 ✨
+			// STEPINTO
 			Object bean = resolveBeforeInstantiation(beanName, mbdToUse);
+			/*
+			 * 当经过前置处理后返回的结果如果不为空，
+			 * 那么会直接略过后续的bean的创建而直接返回结果。
+			 * 这一特性虽然很容易被忽略，但是却起着至关重要的作用，
+			 * 我们熟知的AOP功能就是基于这里的判断的。
+			 */
 			if (bean != null) {
 				return bean;
 			}
@@ -496,7 +508,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		try {
 			// 创建 Bean 的调用, 不同的 Bean 创建会有不同的策略
 			// 不同类型的 Bean 创建也是在此方法中进行
-			// STEPINTO
+			// STEPINTO ✨
 			Object beanInstance = doCreateBean(beanName, mbdToUse, args);
 			if (logger.isDebugEnabled()) {
 				logger.debug("Finished creating instance of bean '" + beanName + "'");
@@ -1046,13 +1058,16 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	@Nullable
 	protected Object resolveBeforeInstantiation(String beanName, RootBeanDefinition mbd) {
 		Object bean = null;
+		// 如果尚未被解析
 		if (!Boolean.FALSE.equals(mbd.beforeInstantiationResolved)) {
 			// Make sure bean class is actually resolved at this point.
 			if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
 				Class<?> targetType = determineTargetType(beanName, mbd);
 				if (targetType != null) {
+					// ✨
 					bean = applyBeanPostProcessorsBeforeInstantiation(targetType, beanName);
 					if (bean != null) {
+						// ✨
 						bean = applyBeanPostProcessorsAfterInitialization(bean, beanName);
 					}
 				}
@@ -1922,6 +1937,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 */
 	@Override
 	protected Object postProcessObjectFromFactoryBean(Object object, String beanName) {
+		// LUQIUDO
+		// ☀️☀️☀️
 		return applyBeanPostProcessorsAfterInitialization(object, beanName);
 	}
 
