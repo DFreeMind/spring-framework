@@ -55,6 +55,8 @@ import org.springframework.util.StringUtils;
  * @see ChildBeanDefinition
  */
 @SuppressWarnings("serial")
+// LUQIUDO
+// 从 XML 中解析到的属性都在 AbstractBeanDefinition 能找打对应的配置
 public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccessor
 		implements BeanDefinition, Cloneable {
 
@@ -141,66 +143,151 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	private volatile Object beanClass;
 
 	@Nullable
+	// bean的作用范围,对应bean属性scope
 	private String scope = SCOPE_DEFAULT;
-
+	/**
+	 * 是否是抽象，对应bean属性abstract
+ 	 */
 	private boolean abstractFlag = false;
 
+	/**
+	 * 是否延迟加载,对应bean属性lazy-init
+	 */
 	private boolean lazyInit = false;
 
+	/**
+	 * 自动注入模式,对应bean属性autowire
+	 */
 	private int autowireMode = AUTOWIRE_NO;
 
+	/**
+	 * 依赖检查，Spring 3.0后弃用这个属性
+	 */
 	private int dependencyCheck = DEPENDENCY_CHECK_NONE;
 
 	@Nullable
+	/**
+	 * 用来表示一个bean的实例化依靠另一个bean先实例化,对应bean属性depend-on
+	 */
 	private String[] dependsOn;
 
+	/**
+	 * autowire-candidate属性设置为false，这样容器在查找自动装配对象时，
+	 * 将不考虑该bean，即它不会被考虑作为其他bean自动装配的候选者，但是该bean本身还是可以使用自动装配来注入其他bean的。
+	 *  对应bean属性autowire-candidate
+	 */
 	private boolean autowireCandidate = true;
 
+	/**
+	 * 自动装配时当出现多个bean候选者时，将作为首选者,对应bean属性primary
+	 */
 	private boolean primary = false;
 
+	/**
+	 * 用于记录Qualifier，对应子元素qualifier
+	 */
 	private final Map<String, AutowireCandidateQualifier> qualifiers = new LinkedHashMap<>();
 
 	@Nullable
 	private Supplier<?> instanceSupplier;
 
+	/**
+	 * 允许访问非公开的构造器和方法，程序设置
+	 */
 	private boolean nonPublicAccessAllowed = true;
 
+	/**
+	 * 是否以一种宽松的模式解析构造函数，默认为true,
+	 * 如果为false,则在如下情况
+	 * interface ITest{}
+	 * class  ITestImpl implements ITest{};
+	 * class Main{
+	 *     Main(ITest i){}
+	 *     Main(ITestImpl i){}
+	 * }
+	 * 抛出异常，因为Spring无法准确定位哪个构造函数
+	 * 程序设置
+	 */
 	private boolean lenientConstructorResolution = true;
 
 	@Nullable
+	/**
+	 * 对应bean属性factory-bean，用法：
+	 * <bean id="instanceFactoryBean" class="example.chapter3.InstanceFactoryBean"/>
+	 * <bean id="currentTime" factory-bean="instanceFactoryBean" factory-method="createTime"/>
+	 */
 	private String factoryBeanName;
 
 	@Nullable
+	/**
+	 * 对应bean属性factory-method
+	 */
 	private String factoryMethodName;
 
 	@Nullable
+	/**
+	 * 记录构造函数注入属性，对应bean属性constructor-arg
+	 */
 	private ConstructorArgumentValues constructorArgumentValues;
 
 	@Nullable
+	/**
+	 * 普通属性集合
+	 */
 	private MutablePropertyValues propertyValues;
 
+	/**
+	 * 方法重写的持有者 ,记录lookup-method、replaced-method元素
+	 */
 	private MethodOverrides methodOverrides = new MethodOverrides();
 
 	@Nullable
+	/**
+	 * 初始化方法，对应bean属性init-method
+	 */
 	private String initMethodName;
 
 	@Nullable
+	/**
+	 * 销毁方法，对应bean属性destory-method
+	 */
 	private String destroyMethodName;
 
+	/**
+	 * 是否执行init-method，程序设置
+	 */
 	private boolean enforceInitMethod = true;
 
+	/**
+	 * 是否执行destory-method，程序设置
+	 */
 	private boolean enforceDestroyMethod = true;
 
+	/**
+	 * 是否是用户定义的而不是应用程序本身定义的,创建AOP时候为true，程序设置
+	 */
 	private boolean synthetic = false;
 
+	/**
+	 * 定义这个bean的应用 ，
+	 * 	APPLICATION：用户，
+	 * 	INFRASTRUCTURE：完全内部使用，与用户无关，
+	 * 	SUPPORT：某些复杂配置的一部分
+	 * 程序设置
+	 */
 	private int role = BeanDefinition.ROLE_APPLICATION;
 
 	@Nullable
+	/**
+	 * bean的描述信息
+	 */
 	private String description;
 
 	@Nullable
+	/**
+	 * 这个bean定义的资源
+	 */
 	private Resource resource;
-
 
 	/**
 	 * Create a new AbstractBeanDefinition with default settings.
@@ -1059,6 +1146,8 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	 * Validate this bean definition.
 	 * @throws BeanDefinitionValidationException in case of validation failure
 	 */
+	// LUQIUDO
+	// 校验 methodOverrides
 	public void validate() throws BeanDefinitionValidationException {
 		if (hasMethodOverrides() && getFactoryMethodName() != null) {
 			throw new BeanDefinitionValidationException(
