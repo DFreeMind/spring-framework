@@ -1514,6 +1514,7 @@ public class BeanDefinitionParserDelegate {
 	 */
 	@Nullable
 	public BeanDefinition parseCustomElement(Element ele) {
+		// STEPINTO ✨
 		return parseCustomElement(ele, null);
 	}
 
@@ -1524,16 +1525,25 @@ public class BeanDefinitionParserDelegate {
 	 * @return the resulting bean definition
 	 */
 	@Nullable
+	// LUQIUDO
+	// containingBd为父类bean，对顶层元素的解析应设置为null
 	public BeanDefinition parseCustomElement(Element ele, @Nullable BeanDefinition containingBd) {
+		// 获取对应的命名空间
 		String namespaceUri = getNamespaceURI(ele);
 		if (namespaceUri == null) {
 			return null;
 		}
+		// 根据命名空间找到对应的 NamespaceHandler
+		// resolver 其实是调用的 DefaultNamespaceHandlerResolver 中的方法
+		// STEPINTO ✨
 		NamespaceHandler handler = this.readerContext.getNamespaceHandlerResolver().resolve(namespaceUri);
 		if (handler == null) {
 			error("Unable to locate Spring NamespaceHandler for XML schema namespace [" + namespaceUri + "]", ele);
 			return null;
 		}
+		// 调用自定义的NamespaceHandler进行解析
+		// 自定义的 handler 中并没有实现 parse, 该方法在父类 NamespaceHandlerSupport 中
+		// STEPINTO 分析具体解析实现✨
 		return handler.parse(ele, new ParserContext(this.readerContext, this, containingBd));
 	}
 

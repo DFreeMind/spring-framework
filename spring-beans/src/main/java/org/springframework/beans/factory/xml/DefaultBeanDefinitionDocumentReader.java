@@ -188,13 +188,13 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 					}
 					else {
 						// 对 Bean 处理, 自定义命名空间
-						// STEPINTO
 						delegate.parseCustomElement(ele);
 					}
 				}
 			}
 		}
 		else {
+			// STEPINTO 自定义标签的解析 ✨✨✨
 			delegate.parseCustomElement(root);
 		}
 	}

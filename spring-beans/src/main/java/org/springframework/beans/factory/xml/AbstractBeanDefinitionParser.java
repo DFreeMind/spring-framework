@@ -59,7 +59,14 @@ public abstract class AbstractBeanDefinitionParser implements BeanDefinitionPars
 
 	@Override
 	@Nullable
+	// LUQIUDO
+	// parse 方法处理
+	// 在这个函数中大部分的代码是用来处理将解析后的
+	// AbstractBeanDefinition转化为BeanDefinitionHolder并注册的功能，
+	// 而真正去做解析的事情委托给了函数 parseInternal
 	public final BeanDefinition parse(Element element, ParserContext parserContext) {
+		// 该方法的具体实现在 AbstractSingletonBeanDefinitionParser 中
+		// STEPINTO 分析解析的具体过程 ✨
 		AbstractBeanDefinition definition = parseInternal(element, parserContext);
 		if (definition != null && !parserContext.isNested()) {
 			try {
@@ -76,9 +83,11 @@ public abstract class AbstractBeanDefinitionParser implements BeanDefinitionPars
 						aliases = StringUtils.trimArrayElements(StringUtils.commaDelimitedListToStringArray(name));
 					}
 				}
+				// 将AbstractBeanDefinition转换为BeanDefinitionHolder并注册
 				BeanDefinitionHolder holder = new BeanDefinitionHolder(definition, id, aliases);
 				registerBeanDefinition(holder, parserContext.getRegistry());
 				if (shouldFireEvents()) {
+					// 需要通知监听器则进行处理
 					BeanComponentDefinition componentDefinition = new BeanComponentDefinition(holder);
 					postProcessComponentDefinition(componentDefinition);
 					parserContext.registerComponent(componentDefinition);
