@@ -60,8 +60,12 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 
 
 	@Override
+	// LUQIUDO
+	// 使用默认的实例化策略
 	public Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner) {
 		// Don't override the class with CGLIB if no overrides.
+		// 如果有需要覆盖或者动态替换的方法则使用cglib进行动态代理，因为可以在创建代理的同时
+		// 将动态方法织入类中, 但是如果没有需要动态改变得方法，直接使用反射即可
 		if (!bd.hasMethodOverrides()) {
 			Constructor<?> constructorToUse;
 			synchronized (bd.constructorArgumentLock) {
@@ -92,8 +96,8 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 			return BeanUtils.instantiateClass(constructorToUse);
 		}
 		else {
-			// 通过 CGLIB 实例化对象
 			// Must generate CGLIB subclass.
+			// 通过 CGLIB 实例化对象
 			return instantiateWithMethodInjection(bd, beanName, owner);
 		}
 	}
