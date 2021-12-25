@@ -119,6 +119,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
 
 	@Override
 	public void onRefresh() {
+		// STEPINTO ✨
 		startBeans(true);
 		this.running = true;
 	}

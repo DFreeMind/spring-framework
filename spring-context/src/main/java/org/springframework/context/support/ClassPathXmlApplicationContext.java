@@ -134,13 +134,18 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 	 * @throws BeansException if context creation failed
 	 * @see #refresh()
 	 */
+	// LUQIUDO
 	public ClassPathXmlApplicationContext(
 			String[] configLocations, boolean refresh, @Nullable ApplicationContext parent)
 			throws BeansException {
 
 		super(parent);
+		// 配置文件路径以数组的形式传入
+		// STEPINTO ✨
 		setConfigLocations(configLocations);
 		if (refresh) {
+			// 解析即功能实现部分
+			// STEPINTO 核心部分,实现在 AbstractApplicationContext 中 ☀️
 			refresh();
 		}
 	}

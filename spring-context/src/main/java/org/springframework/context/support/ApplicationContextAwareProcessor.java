@@ -88,17 +88,20 @@ class ApplicationContextAwareProcessor implements BeanPostProcessor {
 
 		if (acc != null) {
 			AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+				// ✨
 				invokeAwareInterfaces(bean);
 				return null;
 			}, acc);
 		}
 		else {
+			// ✨
 			invokeAwareInterfaces(bean);
 		}
 
 		return bean;
 	}
-
+	// LUQIUDO
+	// 实现 Aware 接口的 bean 在初始化后, 可以获取对应的资源
 	private void invokeAwareInterfaces(Object bean) {
 		if (bean instanceof Aware) {
 			if (bean instanceof EnvironmentAware) {

@@ -197,6 +197,8 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
 	/**
 	 * Actually register the default editors for this registry instance.
 	 */
+	// LUQIUDO
+	// 创建一系列默认属性编辑器
 	private void createDefaultEditors() {
 		this.defaultEditors = new HashMap<>(64);
 

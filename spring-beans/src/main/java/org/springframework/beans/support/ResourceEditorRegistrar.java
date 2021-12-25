@@ -98,8 +98,10 @@ public class ResourceEditorRegistrar implements PropertyEditorRegistrar {
 	 * @see org.springframework.core.io.support.ResourceArrayPropertyEditor
 	 */
 	@Override
+	// LUQIUDO
 	public void registerCustomEditors(PropertyEditorRegistry registry) {
 		ResourceEditor baseEditor = new ResourceEditor(this.resourceLoader, this.propertyResolver);
+		// ✨
 		doRegisterEditor(registry, Resource.class, baseEditor);
 		doRegisterEditor(registry, ContextResource.class, baseEditor);
 		doRegisterEditor(registry, InputStream.class, new InputStreamEditor(baseEditor));
@@ -129,6 +131,7 @@ public class ResourceEditorRegistrar implements PropertyEditorRegistrar {
 			((PropertyEditorRegistrySupport) registry).overrideDefaultEditor(requiredType, editor);
 		}
 		else {
+			// ✨
 			registry.registerCustomEditor(requiredType, editor);
 		}
 	}
