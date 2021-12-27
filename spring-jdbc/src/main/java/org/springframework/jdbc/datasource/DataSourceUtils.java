@@ -112,6 +112,8 @@ public abstract class DataSourceUtils {
 	 * @see #doReleaseConnection
 	 */
 	// LUQIUDO
+	// 🍉 在数据库连接方面，Spring主要考虑的是关于事务方面的处理。基于事务处理的特殊性，
+	// Spring需要保证线程中的数据库操作都是使用同一个事务连接。
 	// 取得连接的调用，是通过调用doGetConnection完成的，这里执行了异常的转换操作
 	public static Connection doGetConnection(DataSource dataSource) throws SQLException {
 		Assert.notNull(dataSource, "No DataSource specified");
@@ -134,13 +136,15 @@ public abstract class DataSourceUtils {
 
 		logger.debug("Fetching JDBC Connection from DataSource");
 		// 这里得到需要的数据库Connection，它是在Bean配置文件中定义好的
-		// STEPINTO 分析如何得到需要的 Connection
+		// STEPINTO ✨ 分析如何得到需要的 Connection
 		Connection con = fetchConnection(dataSource);
 		// 最后把新打开的数据库Connection通过TransactionSynchronizationManager和当前线程绑定起来
+		// 当前线程支持同步
 		if (TransactionSynchronizationManager.isSynchronizationActive()) {
 			try {
 				// Use same Connection for further JDBC actions within the transaction.
 				// Thread-bound object will get removed by synchronization at transaction completion.
+				// 在事务中使用同一数据库连接
 				ConnectionHolder holderToUse = conHolder;
 				if (holderToUse == null) {
 					holderToUse = new ConnectionHolder(con);
@@ -148,6 +152,7 @@ public abstract class DataSourceUtils {
 				else {
 					holderToUse.setConnection(con);
 				}
+				// 记录数据库连接
 				holderToUse.requested();
 				TransactionSynchronizationManager.registerSynchronization(
 						new ConnectionSynchronization(holderToUse, dataSource));
@@ -333,6 +338,7 @@ public abstract class DataSourceUtils {
 	 */
 	public static void releaseConnection(@Nullable Connection con, @Nullable DataSource dataSource) {
 		try {
+			// STEPINTO ✨
 			doReleaseConnection(con, dataSource);
 		}
 		catch (SQLException ex) {
@@ -354,11 +360,18 @@ public abstract class DataSourceUtils {
 	 * @throws SQLException if thrown by JDBC methods
 	 * @see #doGetConnection
 	 */
+	/**
+	 * 数据库的连接释放并不是直接调用了Connection的API中的close方法。
+	 * 考虑到存在事务的情况，如果当前线程存在事务，那么说明在当前线程中存在共用数据库连接，
+	 * 这种情况下直接使用ConnectionHolder中的released方法进行连接数减一，而不是真正的释放连接。
+	 */
 	public static void doReleaseConnection(@Nullable Connection con, @Nullable DataSource dataSource) throws SQLException {
 		if (con == null) {
 			return;
 		}
 		if (dataSource != null) {
+			// 当前线程存在事务的情况下说明存在共用数据库连接,
+			// 直接使用ConnectionHolder中的released方法进行连接数减一而不是真正的释放连接
 			ConnectionHolder conHolder = (ConnectionHolder) TransactionSynchronizationManager.getResource(dataSource);
 			if (conHolder != null && connectionEquals(conHolder, con)) {
 				// It's the transactional Connection: Don't close it.

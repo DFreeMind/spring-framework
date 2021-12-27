@@ -158,7 +158,7 @@ public abstract class StatementCreatorUtils {
 	 */
 	public static void setParameterValue(PreparedStatement ps, int paramIndex, int sqlType,
 			@Nullable Object inValue) throws SQLException {
-
+		// STEPINTO ✨
 		setParameterValueInternal(ps, paramIndex, sqlType, null, null, inValue);
 	}
 
@@ -194,6 +194,7 @@ public abstract class StatementCreatorUtils {
 	 * @throws SQLException if thrown by PreparedStatement methods
 	 * @see SqlTypeValue
 	 */
+	// 对单个参数的处理
 	private static void setParameterValueInternal(PreparedStatement ps, int paramIndex, int sqlType,
 			@Nullable String typeName, @Nullable Integer scale, @Nullable Object inValue) throws SQLException {
 
