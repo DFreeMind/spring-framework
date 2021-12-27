@@ -496,7 +496,9 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 
 	@Override
 	@Nullable
+	// LUQIUDO
 	public <T> T queryForObject(String sql, Class<T> requiredType) throws DataAccessException {
+		// STEPINTO 🍉 关键字在 SingleColumnRowMapper 中的 mapRow
 		return queryForObject(sql, getSingleColumnRowMapper(requiredType));
 	}
 
@@ -711,6 +713,10 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 					// 执行SQL查询
 					rs = ps.executeQuery();
 					// 返回需要的记录集合
+					// 负责将结果封装并转换只 POJO
+					// rse当前代表的类为RowMapperResultSetExtractor，
+					// 而在构造RowMapperResultSetExtractor的时候我们又将自定义的rowMapper设置了进去
+					// STEPINTO 🍉
 					return rse.extractData(rs);
 				}
 				finally {
@@ -733,12 +739,15 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 	@Override
 	@Nullable
 	public <T> T query(String sql, @Nullable PreparedStatementSetter pss, ResultSetExtractor<T> rse) throws DataAccessException {
+		// STEPINTO ✨
 		return query(new SimplePreparedStatementCreator(sql), pss, rse);
 	}
 
 	@Override
 	@Nullable
 	public <T> T query(String sql, Object[] args, int[] argTypes, ResultSetExtractor<T> rse) throws DataAccessException {
+		// 使用 newArgTypePreparedStatementSetter 方法
+		// STEPINTO ✨
 		return query(sql, newArgTypePreparedStatementSetter(args, argTypes), rse);
 	}
 
@@ -790,7 +799,10 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 	}
 
 	@Override
+	// LUQIUDO
+	// QUERY 方法实现
 	public <T> List<T> query(String sql, Object[] args, int[] argTypes, RowMapper<T> rowMapper) throws DataAccessException {
+		// STEPINTO ✨
 		return result(query(sql, args, argTypes, new RowMapperResultSetExtractor<>(rowMapper)));
 	}
 
