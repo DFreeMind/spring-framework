@@ -40,8 +40,12 @@ class AspectJAutoProxyBeanDefinitionParser implements BeanDefinitionParser {
 
 	@Override
 	@Nullable
+	// LUQIUDO
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
+		// 注册 AnnotationAwareAspectJAutoProxyCreator
+		// STEPINTO 🌙 分析实现逻辑
 		AopNamespaceUtils.registerAspectJAnnotationAutoProxyCreatorIfNecessary(parserContext, element);
+		// 注解中子类的处理
 		extendBeanDefinition(element, parserContext);
 		return null;
 	}

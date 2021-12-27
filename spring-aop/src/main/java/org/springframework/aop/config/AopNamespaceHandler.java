@@ -52,6 +52,8 @@ import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
  * @author Juergen Hoeller
  * @since 2.0
  */
+// LUQIUDO
+// 开启读注解AOP的支持
 public class AopNamespaceHandler extends NamespaceHandlerSupport {
 
 	/**
@@ -63,6 +65,8 @@ public class AopNamespaceHandler extends NamespaceHandlerSupport {
 	public void init() {
 		// In 2.0 XSD as well as in 2.5+ XSDs
 		registerBeanDefinitionParser("config", new ConfigBeanDefinitionParser());
+		// 对 aspectj-autoproxy 的支持 ☀️
+		// STEPINTO 分析 parse 函数
 		registerBeanDefinitionParser("aspectj-autoproxy", new AspectJAutoProxyBeanDefinitionParser());
 		registerBeanDefinitionDecorator("scoped-proxy", new ScopedProxyBeanDefinitionDecorator());
 

@@ -154,8 +154,13 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 		this.arguments = arguments;
 	}
 
-
-	// LUQIUDO
+	/**
+	 * ReflectiveMethodInvocation中的主要职责是维护了链接调用的计数器，
+	 * 记录着当前调用链接的位置，以便链可以有序地进行下去，
+	 * 那么在这个方法中并没有我们之前设想的维护各种增强的顺序，
+	 * 而是将此工作委托给了各个增强器，使各个增强器在内部进行逻辑实现。
+	 */
+	// LUQIUDO ☀️
 	// 在proceed方法中，先进行判断，如果现在已经运行到拦截器链的末尾，
 	// 那么就会直接调用目标对象的实现方法；否则，沿着拦截器链继续进行，
 	// 得到下一个拦截器，通过这个拦截器进行matches判断，判断是否是适用于横切增强的场合，
@@ -163,10 +168,11 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 	@Override
 	@Nullable
 	public Object proceed() throws Throwable {
+		// We start with an index of -1 and increment early.
 		// 从索引为 -1的拦截器开始调用，并按序递增
 		// 如果拦截器链中的拦截器迭代调用完毕，这里开始调用 target的函数，
 		// 这个函数是通过反射机制完成的, 具体实现在 AopUtils.invokeJoinpointUsingReflection方法中
-		// We start with an index of -1 and increment early.
+		// 执行完所有增强后执行切点方法
 		if (this.currentInterceptorIndex == this.interceptorsAndDynamicMethodMatchers.size() - 1) {
 			return invokeJoinpoint();
 		}
@@ -174,13 +180,15 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 		// Advice
 		// 沿着定义好的 interceptorOrInterceptionAdvice 链进行处理
 		// 获取到拦截器, 通过拦截器机制对目标对象进行增强
+		// 获取下一个要执行的拦截器
 		Object interceptorOrInterceptionAdvice =
 				this.interceptorsAndDynamicMethodMatchers.get(++this.currentInterceptorIndex);
 		if (interceptorOrInterceptionAdvice instanceof InterceptorAndDynamicMethodMatcher) {
-			// 这里对拦截器进行动态匹配的判断
-			// 这里是触发进行匹配的地方，如果和定义的 Pointcut 匹配，那么这个 advice将会得到执行
 			// Evaluate dynamic method matcher here: static part will already have
 			// been evaluated and found to match.
+			// 这里对拦截器进行动态匹配的判断
+			// 这里是触发进行匹配的地方，如果和定义的 Pointcut 匹配，那么这个 advice将会得到执行
+			// 动态匹配
 			InterceptorAndDynamicMethodMatcher dm =
 					(InterceptorAndDynamicMethodMatcher) interceptorOrInterceptionAdvice;
 			if (dm.methodMatcher.matches(this.method, this.targetClass, this.arguments)) {
@@ -188,16 +196,25 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 				return dm.interceptor.invoke(this);
 			}
 			else {
-				// 如果不匹配，那么 proceed 会被递归调用，直到所有的拦截器都被运行过为止
 				// Dynamic matching failed.
 				// Skip this interceptor and invoke the next in the chain.
+				// 如果不匹配，那么 proceed 会被递归调用，直到所有的拦截器都被运行过为止
 				return proceed();
 			}
 		}
 		else {
-			// 如果是一个 interceptor，直接调用这个 interceptor对应的方法
 			// It's an interceptor, so we just invoke it: The pointcut will have
 			// been evaluated statically before this object was constructed.
+			/**
+			 * 普通拦截器，直接调用拦截器,比如：
+			 * ExposeInvocationInterceptor、
+			 * DelegatePerTargetObjectIntroductionInterceptor、
+			 * MethodBeforeAdviceInterceptor
+			 * AspectJAroundAdvice、
+			 * AspectJAfterAdvice
+			 */
+			// 如果是一个 interceptor，直接调用这个 interceptor对应的方法
+			// 将this作为参数传递以保证当前实例中调用链的执行
 			return ((MethodInterceptor) interceptorOrInterceptionAdvice).invoke(this);
 		}
 	}

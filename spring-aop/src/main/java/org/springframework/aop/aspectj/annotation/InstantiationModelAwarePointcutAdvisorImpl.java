@@ -80,6 +80,8 @@ class InstantiationModelAwarePointcutAdvisorImpl
 	private Boolean isAfterAdvice;
 
 
+	// 在封装过程中只是简单地将信息封装在类的实例中，所有的信息单纯地赋值，
+	// 在实例初始化的过程中还完成了对于增强器的初始化。
 	public InstantiationModelAwarePointcutAdvisorImpl(AspectJExpressionPointcut declaredPointcut,
 			Method aspectJAdviceMethod, AspectJAdvisorFactory aspectJAdvisorFactory,
 			MetadataAwareAspectInstanceFactory aspectInstanceFactory, int declarationOrder, String aspectName) {
@@ -110,6 +112,8 @@ class InstantiationModelAwarePointcutAdvisorImpl
 			// A singleton aspect.
 			this.pointcut = this.declaredPointcut;
 			this.lazy = false;
+			// 根据注解中的信息初始化对应的增强器
+			// STEPINTO ✨
 			this.instantiatedAdvice = instantiateAdvice(this.declaredPointcut);
 		}
 	}
@@ -145,7 +149,9 @@ class InstantiationModelAwarePointcutAdvisorImpl
 		return this.instantiatedAdvice;
 	}
 
+	// LUQIUDO ✨
 	private Advice instantiateAdvice(AspectJExpressionPointcut pointcut) {
+		// STEPINTO ✨ 实现在 ReflectiveAspectJAdvisorFactory 中
 		Advice advice = this.aspectJAdvisorFactory.getAdvice(this.aspectJAdviceMethod, pointcut,
 				this.aspectInstanceFactory, this.declarationOrder, this.aspectName);
 		return (advice != null ? advice : EMPTY_ADVICE);

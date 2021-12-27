@@ -55,12 +55,22 @@ public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
 	// 是由Spring封装的JdkDynamicAopProxy和CglibProxyFactory类来完成的
 	@Override
 	public AopProxy createAopProxy(AdvisedSupport config) throws AopConfigException {
+		/**
+		 * optimize：用来控制通过CGLIB创建的代理是否使用激进的优化策略。
+		 * proxyTargetClass：这个属性为true时，目标类本身被代理而不是目标类的接口
+		 * hasNoUserSuppliedProxyInterfaces：是否存在代理接口。
+		 */
 		if (config.isOptimize() || config.isProxyTargetClass() || hasNoUserSuppliedProxyInterfaces(config)) {
 			Class<?> targetClass = config.getTargetClass();
 			if (targetClass == null) {
 				throw new AopConfigException("TargetSource cannot determine target class: " +
 						"Either an interface or a target is required for proxy creation.");
 			}
+			/**
+			 * 如果目标对象实现了接口，默认情况下会采用JDK的动态代理实现AOP。
+			 * 如果目标对象实现了接口，可以强制使用CGLIB实现AOP。
+			 * 如果目标对象没有实现接口，必须采用CGLIB库，Spring会自动在JDK动态代理和CGLIB之间转换。
+			 */
 			// 如果 targetClass是接口类，使用 JDK来生成 Proxy
 			if (targetClass.isInterface() || Proxy.isProxyClass(targetClass)) {
 				return new JdkDynamicAopProxy(config);

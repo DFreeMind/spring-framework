@@ -61,6 +61,15 @@ import org.springframework.util.ClassUtils;
  * @see AdvisedSupport
  * @see ProxyFactory
  */
+
+/**
+ * 在自定义的InvocationHandler中需要重写3个函数。
+ * 	- 构造函数，将代理的对象传入。
+ * 	- invoke方法，此方法中实现了AOP增强的所有逻辑。
+ * 	- getProxy方法，此方法千篇一律，但是必不可少。
+ */
+// LUQIUIDO
+// 实现了 InvocationHandler , 并提供了 getProxy 方法
 final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializable {
 
 	/** use serialVersionUID from Spring 1.2 for interoperability */
@@ -114,6 +123,7 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 	}
 
 	@Override
+	// JDK 实现代理
 	public Object getProxy(@Nullable ClassLoader classLoader) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Creating JDK dynamic proxy: target source is " + this.advised.getTargetSource());
@@ -156,11 +166,16 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 	 * <p>Callers will see exactly the exception thrown by the target,
 	 * unless a hook method throws an exception.
 	 */
-	// LUQIUDO
+	// LUQIUDO ☀️ AOP 核心逻辑代码
 	// InvocationHandler 中 invoke 的具体实现
 	// AopProxy 中回调方法, 完成对目标对象方法调用的拦截增强工作
 	// 获取目标对象、拦截器链，同时把这些对象作为输入，创建了ReflectiveMethodInvocation对象，
 	// 通过这个ReflectiveMethodInvocation对象来完成对AOP功能实现的封装
+	/**
+	 * 的函数中最主要的工作就是创建了一个拦截器链，
+	 * 并使用ReflectiveMethodInvocation类进行了链的封装，
+	 * 而在ReflectiveMethodInvocation类的proceed方法中实现了拦截器的逐一调用
+	 */
 	@Override
 	@Nullable
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -171,11 +186,13 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 		Object target = null;
 
 		try {
+			// equals 方法的处理
 			if (!this.equalsDefined && AopUtils.isEqualsMethod(method)) {
 				// 如果目标对象没有实现 Object类的基本方法： equals
 				// The target does not implement the equals(Object) method itself.
 				return equals(args[0]);
 			}
+			// hash 方法的处理
 			else if (!this.hashCodeDefined && AopUtils.isHashCodeMethod(method)) {
 				// 如果目标对象没有实现 Object类的基本方法： hashCode
 				// The target does not implement the hashCode() method itself.
@@ -185,6 +202,15 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 				// There is only getDecoratedClass() declared -> dispatch to proxy config.
 				return AopProxyUtils.ultimateTargetClass(this.advised);
 			}
+			/*
+              * Class类的isAssignableFrom(Class cls)方法:
+              * 如果调用这个方法的class或接口与参数cls表示的类或接口相同，
+              * 或者是参数cls表示的类或接口的父类，则返回true。
+              * 形象地：自身类.class.isAssignableFrom(自身类或子类.class)  返回true
+              *    例：
+              *    System.out.println(ArrayList.class.isAssignableFrom(Object.class)); //false
+              *    System.out.println(Object.class.isAssignableFrom(ArrayList.class));  //true
+              */
 			else if (!this.advised.opaque && method.getDeclaringClass().isInterface() &&
 					method.getDeclaringClass().isAssignableFrom(Advised.class)) {
 				// 根据代理对象的配置来调用服务
@@ -194,6 +220,7 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 
 			Object retVal;
 
+			// 有时候目标对象内部的自我调用将无法实施切面中的增强则需要通过此属性暴露代理
 			if (this.advised.exposeProxy) {
 				// Make invocation available if necessary.
 				oldProxy = AopContext.setCurrentProxy(proxy);
@@ -224,6 +251,7 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 				// nothing but a reflective operation on the target, and no hot swapping or fancy proxying.
 				Object[] argsToUse = AopProxyUtils.adaptArgumentsIfNecessary(method, args);
 				// 没有设置拦截器, 对目标的方法直接调用
+				// 如果没有发现任何拦截器那么直接调用切点方法
 				// STEPINTO 分析目标对象方法的调用
 				retVal = AopUtils.invokeJoinpointUsingReflection(target, method, argsToUse);
 			}
@@ -232,16 +260,21 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 				// 通过构造一个 ReflectiveMethodInvocation 来实现，下面会看
 				// 这个 ReflectiveMethodInvocation 类的具体实现
 				// We need to create a method invocation...
+				// 将拦截器封装在ReflectiveMethodInvocation，
+				// 以便于使用其proceed进行链接表用拦截器
+				// STEPINTO ✨
 				MethodInvocation invocation =
 						new ReflectiveMethodInvocation(proxy, target, method, args, targetClass, chain);
 				// 沿着拦截器链继续前进, 完成对调用链的调用
 				// STEPINTO ReflectiveMethodInvocation 含有具体实现, 分析调用链的调用过程
 				// Proceed to the joinpoint through the interceptor chain.
+				// STEPINTO ✨ 执行拦截器链
 				retVal = invocation.proceed();
 			}
 
 			// Massage return value if necessary.
 			Class<?> returnType = method.getReturnType();
+			// 返回结果
 			if (retVal != null && retVal == target &&
 					returnType != Object.class && returnType.isInstance(proxy) &&
 					!RawTargetAccess.class.isAssignableFrom(method.getDeclaringClass())) {

@@ -129,8 +129,11 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 	 */
 	@SuppressWarnings("unchecked")
 	@Nullable
+	// LUQIUDO
 	protected static AspectJAnnotation<?> findAspectJAnnotationOnMethod(Method method) {
+		// 从 ASPECTJ_ANNOTATION_CLASSES 中获取敏感的注解类
 		for (Class<?> clazz : ASPECTJ_ANNOTATION_CLASSES) {
+			// STEPTINO ✨ 获取指定方法上的注解并使用AspectJAnnotation封装
 			AspectJAnnotation<?> foundAnnotation = findAnnotation(method, (Class<Annotation>) clazz);
 			if (foundAnnotation != null) {
 				return foundAnnotation;
@@ -140,6 +143,7 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 	}
 
 	@Nullable
+	// 获取指定方法上的注解并使用AspectJAnnotation封装
 	private static <A extends Annotation> AspectJAnnotation<A> findAnnotation(Method method, Class<A> toLookFor) {
 		A result = AnnotationUtils.findAnnotation(method, toLookFor);
 		if (result != null) {
