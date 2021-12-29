@@ -73,7 +73,7 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	// LUQIUDO
 	protected Object[] getAdvicesAndAdvisorsForBean(
 			Class<?> beanClass, String beanName, @Nullable TargetSource targetSource) {
-		// STEPINTO ✨
+		// STEPINTO ✨✨
 		List<Advisor> advisors = findEligibleAdvisors(beanClass, beanName);
 		if (advisors.isEmpty()) {
 			return DO_NOT_PROXY;
@@ -92,10 +92,10 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	 * @see #extendAdvisors
 	 */
 	protected List<Advisor> findEligibleAdvisors(Class<?> beanClass, String beanName) {
-		// STEPINTO ✨ 获取增强器, 该方法在子类 AnnotationAwareAspectJAutoProxyCreator 中有实现
+		// STEPINTO ✨✨ 寻找候选增强器, 该方法在子类 AnnotationAwareAspectJAutoProxyCreator 中有实现
 		// 这里进入的也是 AnnotationAwareAspectJAutoProxyCreator 真的方法
 		List<Advisor> candidateAdvisors = findCandidateAdvisors();
-		// STEPINTO ✨ 从解析出来的增强器中找到满足通配符的增强器
+		// STEPINTO ✨✨ 从解析出来的增强器中找到满足通配符的增强器
 		List<Advisor> eligibleAdvisors = findAdvisorsThatCanApply(candidateAdvisors, beanClass, beanName);
 		extendAdvisors(eligibleAdvisors);
 		if (!eligibleAdvisors.isEmpty()) {
@@ -110,7 +110,7 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	 */
 	protected List<Advisor> findCandidateAdvisors() {
 		Assert.state(this.advisorRetrievalHelper != null, "No BeanFactoryAdvisorRetrievalHelper available");
-		// STEPINTO ✨
+		// STEPINTO ✨✨
 		return this.advisorRetrievalHelper.findAdvisorBeans();
 	}
 
@@ -130,7 +130,7 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 		ProxyCreationContext.setCurrentProxiedBeanName(beanName);
 		try {
 			// 过滤已经得到的 Advisors
-			// STEPINTO ✨
+			// STEPINTO ✨✨
 			return AopUtils.findAdvisorsThatCanApply(candidateAdvisors, beanClass);
 		}
 		finally {

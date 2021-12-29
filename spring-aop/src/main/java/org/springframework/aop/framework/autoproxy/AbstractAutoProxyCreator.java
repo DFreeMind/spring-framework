@@ -306,7 +306,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 			Object cacheKey = getCacheKey(bean.getClass(), beanName);
 			if (this.earlyProxyReferences.remove(cacheKey) != bean) {
 				// 如果它适合被代理,则需要封装指定bean
-				// STEPINTO ✨
+				// STEPINTO ✨✨
 				return wrapIfNecessary(bean, beanName, cacheKey);
 			}
 		}
@@ -342,6 +342,9 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	 * @param cacheKey the cache key for metadata access
 	 * @return a proxy wrapping the bean, or the raw bean instance as-is
 	 */
+	// LUQIUDO
+	// - 找出指定bean对应的增强器。
+	// - 根据找出的增强器创建代理。
 	protected Object wrapIfNecessary(Object bean, String beanName, Object cacheKey) {
 		// 如果已经处理过
 		if (StringUtils.hasLength(beanName) && this.targetSourcedBeans.contains(beanName)) {
@@ -360,7 +363,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 
 		// Create proxy if we have advice.
 		// 如果存在增强方法则创建代理
-		// STEPINTO ✨ 获取增强方法, 该方法的实现在 AbstractAdvisorAutoProxyCreator 中
+		// STEPINTO ✨✨ 获取增强方法, 该方法的实现在 AbstractAdvisorAutoProxyCreator 中
 		Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, null);
 		if (specificInterceptors != DO_NOT_PROXY) {
 			this.advisedBeans.put(cacheKey, Boolean.TRUE);

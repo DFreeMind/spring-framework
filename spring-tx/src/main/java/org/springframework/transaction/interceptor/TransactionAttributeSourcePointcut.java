@@ -34,16 +34,18 @@ import org.springframework.util.ObjectUtils;
 abstract class TransactionAttributeSourcePointcut extends StaticMethodMatcherPointcut implements Serializable {
 
 	@Override
-	// LUQIUDO
+	// LUQIUDO ✨
 	// 在Pointcut的matches判断过程中，会用到transactionAttributeSource对象，
 	// 这个transactionAttributeSource对象是在对TransactionInterceptor进行依赖注入时就配置好的
 	public boolean matches(Method method, @Nullable Class<?> targetClass) {
 		if (targetClass != null && TransactionalProxy.class.isAssignableFrom(targetClass)) {
 			return false;
 		}
-		// 的设置是在TransactionInterceptor的基类TransactionAspectSupport中的
+		// 设置是在TransactionInterceptor的基类TransactionAspectSupport中的
 		// setTransactionAttributes 完成的，配置的是一个NameMatchTransactionAttributeSource对象
+		// 🌺自定义标签解析时注入
 		TransactionAttributeSource tas = getTransactionAttributeSource();
+		// STEPINTO ✨ getTransactionAttribute, 在 AbstractFallbackTransactionAttributeSource 中
 		return (tas == null || tas.getTransactionAttribute(method, targetClass) != null);
 	}
 

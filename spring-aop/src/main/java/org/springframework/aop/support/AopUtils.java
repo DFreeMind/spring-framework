@@ -220,13 +220,16 @@ public abstract class AopUtils {
 	 * for this bean includes any introductions
 	 * @return whether the pointcut can apply on any method
 	 */
-	// LUQIUDO 🍉
+	// LUQIUDO ✨🍉
 	public static boolean canApply(Pointcut pc, Class<?> targetClass, boolean hasIntroductions) {
 		Assert.notNull(pc, "Pointcut must not be null");
 		if (!pc.getClassFilter().matches(targetClass)) {
 			return false;
 		}
 
+		// 此时的pc表示TransactionAttributeSourcePointcut
+		// pc.getMethodMatcher()返回的正是自身(this).
+		//STEPINTO ✨
 		MethodMatcher methodMatcher = pc.getMethodMatcher();
 		if (methodMatcher == MethodMatcher.TRUE) {
 			// No need to iterate the methods if we're matching any method anyway...
@@ -245,10 +248,14 @@ public abstract class AopUtils {
 		classes.addAll(ClassUtils.getAllInterfacesForClassAsSet(targetClass));
 
 		for (Class<?> clazz : classes) {
+			// 首先获取对应类的所有接口并连同类本身一起遍历，
+			// 遍历过程中又对类中的方法再次遍历，
+			// 一旦匹配成功便认为这个类适用于当前增强器
 			Method[] methods = ReflectionUtils.getAllDeclaredMethods(clazz);
 			for (Method method : methods) {
 				if (introductionAwareMethodMatcher != null ?
 						introductionAwareMethodMatcher.matches(method, targetClass, hasIntroductions) :
+						// STEPINTO ✨ 使用 TransactionAttributeSourcePointcut 类的 matches 方法
 						methodMatcher.matches(method, targetClass)) {
 					return true;
 				}
@@ -267,7 +274,7 @@ public abstract class AopUtils {
 	 * @return whether the pointcut can apply on any method
 	 */
 	public static boolean canApply(Advisor advisor, Class<?> targetClass) {
-		// STEPINTO 🍉
+		// STEPINTO ✨🍉
 		return canApply(advisor, targetClass, false);
 	}
 
@@ -287,7 +294,7 @@ public abstract class AopUtils {
 		}
 		else if (advisor instanceof PointcutAdvisor) {
 			PointcutAdvisor pca = (PointcutAdvisor) advisor;
-			// STEPINTO 🍉
+			// STEPINTO ✨🍉
 			return canApply(pca.getPointcut(), targetClass, hasIntroductions);
 		}
 		else {
@@ -304,7 +311,7 @@ public abstract class AopUtils {
 	 * @return sublist of Advisors that can apply to an object of the given class
 	 * (may be the incoming List as-is)
 	 */
-	// LUQIUDO
+	// LUQIUDO 🌙
 	// findAdvisorsThatCanApply函数的主要功能是寻找所有增强器中适用于当前class的增强器。
 	// 引介增强与普通的增强处理是不一样的，所以分开处理。而对于真正的匹配在 canApply中实现
 	public static List<Advisor> findAdvisorsThatCanApply(List<Advisor> candidateAdvisors, Class<?> clazz) {
@@ -314,7 +321,7 @@ public abstract class AopUtils {
 		List<Advisor> eligibleAdvisors = new ArrayList<>();
 		// 首先处理引介增强
 		for (Advisor candidate : candidateAdvisors) {
-			// STEPINTO ✨ canApply
+			// STEPINTO ✨✨ canApply
 			if (candidate instanceof IntroductionAdvisor && canApply(candidate, clazz)) {
 				eligibleAdvisors.add(candidate);
 			}
