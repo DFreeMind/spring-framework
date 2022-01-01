@@ -49,6 +49,7 @@ import org.springframework.transaction.PlatformTransactionManager;
  * @see org.springframework.aop.framework.ProxyFactory
  */
 @SuppressWarnings("serial")
+// LUQIUDO
 public class TransactionInterceptor extends TransactionAspectSupport implements MethodInterceptor, Serializable {
 
 	/**
@@ -88,8 +89,8 @@ public class TransactionInterceptor extends TransactionAspectSupport implements 
 
 	@Override
 	@Nullable
-	// LUQIUDO
-	// 代理对象的回调方法
+	// LUQIUDO ☀️
+	// 事务, 代理对象的回调方法
 	public Object invoke(MethodInvocation invocation) throws Throwable {
 		// Work out the target class: may be {@code null}.
 		// The TransactionAttributeSource should be passed the target class
@@ -99,7 +100,7 @@ public class TransactionInterceptor extends TransactionAspectSupport implements 
 
 		// Adapt to TransactionAspectSupport's invokeWithinTransaction...
 		// 事务的具体实现
-		// STEPINTO
+		// STEPINTO ✨✨
 		return invokeWithinTransaction(invocation.getMethod(), targetClass, invocation::proceed);
 	}
 

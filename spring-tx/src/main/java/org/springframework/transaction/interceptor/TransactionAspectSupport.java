@@ -281,15 +281,19 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 	 * @throws Throwable propagated from the target invocation
 	 */
 	@Nullable
+	// LUQIUDO ☀️
 	protected Object invokeWithinTransaction(Method method, @Nullable Class<?> targetClass,
 			final InvocationCallback invocation) throws Throwable {
 
 		// If the transaction attribute is null, the method is non-transactional.
 		TransactionAttributeSource tas = getTransactionAttributeSource();
+		// 获取对应事务属性
 		// 这里读取事务的属性配置，通过TransactionAttributeSource对象取得
 		final TransactionAttribute txAttr = (tas != null ? tas.getTransactionAttribute(method, targetClass) : null);
 		// 根据TransactionProxyFactoryBean的配置信息获得具体的事务处理器
+		// 获取beanFactory中的transactionManager
 		final PlatformTransactionManager tm = determineTransactionManager(txAttr);
+		// 构造方法唯一标识（类.方法，如service.UserServiceImpl.save）
 		final String joinpointIdentification = methodIdentification(method, targetClass, txAttr);
 
 		// 这里区分不同类型的PlatformTransactionManager，因为它们的调用方式不同对
@@ -297,11 +301,12 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 		// 对非CallbackPreferringPlatformTransactionManager来说，不需要通过回调函数来实现事务的创建和提交
 		// 像DataSourceTransactionManager就不是CallbackPreferringPlatformTransactionManager，
 		// 不需要通过回调的方式来使用
+		// 🍇 声明式事务处理
 		if (txAttr == null || !(tm instanceof CallbackPreferringPlatformTransactionManager)) {
 			// Standard transaction demarcation with getTransaction and commit/rollback calls.
 			// 创建事务，同时把创建事务过程中得到的信息放到TransactionInfo中去，
 			// TransactionInfo是保存当前事务状态的对
-			// STEPINTO 分析具体的事务创建过程
+			// STEPINTO ✨✨ 分析具体的事务创建过程
 			TransactionInfo txInfo = createTransactionIfNecessary(tm, txAttr, joinpointIdentification);
 
 			Object retVal;
@@ -309,26 +314,30 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 				// This is an around advice: Invoke the next interceptor in the chain.
 				// This will normally result in a target object being invoked.
 				// 调用使处理沿着拦截器链进行，使最后目标对象的方法得到调用
+				// 执行增强的方法
 				retVal = invocation.proceedWithInvocation();
 			}
 			catch (Throwable ex) {
 				// target invocation exception
 				// 如果在事务处理方法调用中出现了异常，事务处理如何进行需要根据具体的情况考虑回滚或者提交
+				// 出现错误恢复数据
+				// STEPINTO ✨ 数据如何恢复
 				completeTransactionAfterThrowing(txInfo, ex);
 				throw ex;
 			}
 			finally {
 				// 这里把与线程绑定的TransactionInfo设置为oldTransationInfo
+				// 清除信息
 				cleanupTransactionInfo(txInfo);
 			}
 			// 通过事务处理器来对事务进行提交
 			// TransactionInfo对象是创建事务时生成的
 			// Spring的事务管理框架生成的TransactionStatus对象就包含在TransactionInfo对象中
-			// STEPINTO 分析事务的提交过程
+			// STEPINTO ✨✨ 分析事务的提交过程
 			commitTransactionAfterReturning(txInfo);
 			return retVal;
 		}
-
+		// 🍇 编程式事务处理
 		else {
 			Object result;
 			final ThrowableHolder throwableHolder = new ThrowableHolder();
@@ -483,7 +492,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 	 */
 	@SuppressWarnings("serial")
 	/**
-	 * LUQIUDO
+	 * LUQIUDO	事务创建
 	 *
 	 * 在createTransaction-IfNecessary方法的调用中，
 	 * 会向AbstractTransactionManager执行getTransaction()，
@@ -497,6 +506,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 
 		// If no name specified, apply method identification as transaction name.
 		// 如果没有指定名字，使用方法特征来作为事务名
+		// 如果没有名称指定则使用方法唯一标识，并使用DelegatingTransactionAttribute封装txAttr
 		if (txAttr != null && txAttr.getName() == null) {
 			txAttr = new DelegatingTransactionAttribute(txAttr) {
 				@Override
@@ -511,8 +521,10 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 		if (txAttr != null) {
 			if (tm != null) {
 				// 使用了定义好的事务方法的配置信息
-				// 事务创建由事务处理器来完成，同时返回TransactionStatus来记录当前的事务状态，
+				// 事务创建由事务处理器来完成，同时返回 TransactionStatus 来记录当前的事务状态，
 				// 包括已经创建的事务
+				// 获取 TransactionStatus 信息
+				// STEPINTO ✨ 该方法的实现在 AbstractPlatformTransactionManager
 				status = tm.getTransaction(txAttr);
 			}
 			else {
@@ -523,7 +535,8 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 			}
 		}
 		// 准备TransactionInfo，TransactionInfo对象封装了事务处理的配置信息以及TransactionStatus
-		// STEPINTO 分析事务信息的准备过程
+		// 根据指定的属性与status准备一个TransactionInfo
+		// STEPINTO ✨✨ 分析事务信息的准备过程
 		return prepareTransactionInfo(tm, txAttr, joinpointIdentification, status);
 	}
 
@@ -548,6 +561,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 			// The transaction manager will flag an error if an incompatible tx already exists.
 			// TransactionInfo设置TransactionStatus，这个TransactionStatus很重要，
 			// 它持有管理事务处理需要的数据，比如，transaction对象就是由TransactionStatus来持有
+			// 记录事务状态
 			txInfo.newTransactionStatus(status);
 		}
 		else {
@@ -582,7 +596,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 			}
 			// 到事务处理器中去看看事务是如何提交
 			// AbstractPlatformTransactionManager中也有一个模板方法支持具体的事务处理器对事务提交的实现
-			// STEPINTO 分析事务提交过程
+			// STEPINTO 🌙 分析事务提交过程
 			txInfo.getTransactionManager().commit(txInfo.getTransactionStatus());
 		}
 	}
@@ -593,14 +607,21 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 	 * @param txInfo information about the current transaction
 	 * @param ex throwable encountered
 	 */
+	// LUIQUDO
 	protected void completeTransactionAfterThrowing(@Nullable TransactionInfo txInfo, Throwable ex) {
+		// 当抛出异常时首先判断当前是否存在事务，这是基础依据
 		if (txInfo != null && txInfo.getTransactionStatus() != null) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("Completing transaction for [" + txInfo.getJoinpointIdentification() +
 						"] after exception: " + ex);
 			}
+			// 判断是否回滚默认的依据是抛出的异常是否是RuntimeException或者是Error的类型
+			// 在注解中可以通过 rollbackFor 设置对于哪些异常进行回滚
+			// rollbackOn 判断回滚条件
 			if (txInfo.transactionAttribute != null && txInfo.transactionAttribute.rollbackOn(ex)) {
 				try {
+					// 根据TransactionStatus信息进行回滚处理
+					// STEPINTO ✨ 回滚
 					txInfo.getTransactionManager().rollback(txInfo.getTransactionStatus());
 				}
 				catch (TransactionSystemException ex2) {
@@ -616,6 +637,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 			else {
 				// We don't roll back on this exception.
 				// Will still roll back if TransactionStatus.isRollbackOnly() is true.
+				// 如果不满足回滚条件即使抛出异常也同样会提交
 				try {
 					txInfo.getTransactionManager().commit(txInfo.getTransactionStatus());
 				}
