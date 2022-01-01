@@ -500,8 +500,9 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 
 		try {
 			// 初始化上下文
-			// STPINTO
+			// STPINTO 🌙 初始化 WebApplicationContext
 			this.webApplicationContext = initWebApplicationContext();
+			// 设计为给子类覆盖
 			initFrameworkServlet();
 		}
 		catch (ServletException | RuntimeException ex) {
@@ -529,13 +530,14 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		// 这里调用 WebApplicationContextUtils静态类来得到根上下文，
 		// 这个根上下文是保存在 ServletContext中的, 使用这个根上下文作为当前
 		// MVC上下文的双亲上下文
-		// STEPINTO
+		// STEPINTO 🍉
 		WebApplicationContext rootContext =
 				WebApplicationContextUtils.getWebApplicationContext(getServletContext());
 		WebApplicationContext wac = null;
 
 		if (this.webApplicationContext != null) {
 			// A context instance was injected at construction time -> use it
+			// context实例在构造函数中被注入
 			wac = this.webApplicationContext;
 			if (wac instanceof ConfigurableWebApplicationContext) {
 				ConfigurableWebApplicationContext cwac = (ConfigurableWebApplicationContext) wac;
@@ -547,6 +549,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 						// the root application context (if any; may be null) as the parent
 						cwac.setParent(rootContext);
 					}
+					// 刷新上下文环境
 					configureAndRefreshWebApplicationContext(cwac);
 				}
 			}
@@ -556,11 +559,12 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 			// has been registered in the servlet context. If one exists, it is assumed
 			// that the parent context (if any) has already been set and that the
 			// user has performed any initialization such as setting the context id
+			// 根据contextAttribute属性加载WebApplicationContext
 			wac = findWebApplicationContext();
 		}
 		if (wac == null) {
 			// No context instance is defined for this servlet -> create a local one
-			// STEPINTO FrameworkServlet建立WebApplicationContext
+			// STEPINTO ✨ FrameworkServlet建立 WebApplicationContext
 			wac = createWebApplicationContext(rootContext);
 		}
 
@@ -570,6 +574,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 			// refreshed -> trigger initial onRefresh manually here.
 			synchronized (this.onRefreshMonitor) {
 				// 完成 web 容器的初始化
+				// STEPINTO ✨
 				onRefresh(wac);
 			}
 		}
@@ -628,6 +633,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	 * @see org.springframework.web.context.support.XmlWebApplicationContext
 	 */
 	protected WebApplicationContext createWebApplicationContext(@Nullable ApplicationContext parent) {
+		// 获取servlet的初始化参数contextClass, 如果没有配置默认为XmlWebApplicationContext.class
 		Class<?> contextClass = getContextClass();
 		if (this.logger.isDebugEnabled()) {
 			this.logger.debug("Servlet with name '" + getServletName() +
@@ -640,6 +646,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 					"': custom WebApplicationContext class [" + contextClass.getName() +
 					"] is not of type ConfigurableWebApplicationContext");
 		}
+		// 通过反射方式实例化contextClass 🏷
 		// 实例化需要的具体上下文对象，并为这个上下文对象设置属性
 		// 这里使用的是 DEFAULT_CONTEXT_CLASS，这个 DEFAULT_CONTEXT_CLASS被设置为
 		// XmlWebApplicationContext.class，所以在 DispatcherServlet中使用的
@@ -654,7 +661,11 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		if (configLocation != null) {
 			wac.setConfigLocation(configLocation);
 		}
-		// STEPINTO
+		// parent为在ContextLoaderListener中创建的实例
+		// 在ContextLoaderListener加载的时候初始化的WebApplicationContext类型实例 wac.setParent(parent);
+		// 获取contextConfigLocation属性，配置在servlet初始化参数中wac.setConfigLocation(getContextConfigLocation());
+		// 初始化Spring环境包括加载配置文件等
+		// STEPINTO ✨
 		configureAndRefreshWebApplicationContext(wac);
 
 		return wac;
@@ -690,6 +701,9 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		postProcessWebApplicationContext(wac);
 		applyInitializers(wac);
 		// 通过 refresh 来调用容器的初始化过程
+		// 无论调用方式如何变化，只要是使用AlicationContext所提供的功能
+		// 最后都免不了使用公共父类AbstractApplicationContext提供的refresh()进行配置文件加载。
+		// STEPINTO ✨ 加载配置文件及整合 parent 到 wac 中
 		wac.refresh();
 	}
 

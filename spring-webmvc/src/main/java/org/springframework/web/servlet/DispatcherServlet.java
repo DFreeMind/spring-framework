@@ -494,6 +494,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	protected void onRefresh(ApplicationContext context) {
 		// LUQIUDO
 		// 启动 Spring MVC 框架初始化
+		// STEPINTO ✨
 		initStrategies(context);
 	}
 
@@ -502,15 +503,24 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * <p>May be overridden in subclasses in order to initialize further strategy objects.
 	 */
 	protected void initStrategies(ApplicationContext context) {
+		// (1)初始化MultipartResolver
 		initMultipartResolver(context);
+		// (2)初始化LocaleResolver
 		initLocaleResolver(context);
+		// (3)初始化ThemeResolver
 		initThemeResolver(context);
+		// (4)初始化HandlerMappings
 		// STEPINTO 为 HTTP 找到相应的 Controller
 		initHandlerMappings(context);
+		// (5)初始化HandlerAdapters
 		initHandlerAdapters(context);
+		// (6)初始化HandlerExceptionResolvers
 		initHandlerExceptionResolvers(context);
+		// (7)初始化RequestToViewNameTranslator
 		initRequestToViewNameTranslator(context);
+		// (8)初始化ViewResolvers
 		initViewResolvers(context);
+		// (9)初始化FlashMapManager
 		initFlashMapManager(context);
 	}
 

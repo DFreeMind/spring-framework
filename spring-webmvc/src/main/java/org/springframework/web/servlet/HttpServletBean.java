@@ -145,7 +145,7 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 	 * properties are missing), or if subclass initialization fails.
 	 */
 	/**
-	 * LUQIUDO
+	 * LUQIUDO 🌙
 	 * 在初始化开始时，需要读取配置在ServletContext中的Bean属性参数，
 	 * 这些属性参数设置在web.xml的Web容器初始化参数中
 	 */
@@ -157,12 +157,19 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 
 		// Set bean properties from init parameters.
 		// 获取 Servlet的初始化参数，对 Bean属性进行配置
+		// 解析init-param并封装至pvs中
+		// STEPINTO 🍉
 		PropertyValues pvs = new ServletConfigPropertyValues(getServletConfig(), this.requiredProperties);
 		if (!pvs.isEmpty()) {
 			try {
+				// 将当前的这个servlet类转化为一个BeanWrapper,
+				// 从而能够以Spring的方式来对init-param的值进行注入
+				// 🍉
 				BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(this);
 				ResourceLoader resourceLoader = new ServletContextResourceLoader(getServletContext());
+				// 注册自定义属性编辑器，一旦遇到Resource类型的属性将会使用ResourceEditor进行解析
 				bw.registerCustomEditor(Resource.class, new ResourceEditor(resourceLoader, getEnvironment()));
+				// 空实现, 留给子类覆盖
 				initBeanWrapper(bw);
 				bw.setPropertyValues(pvs, true);
 			}
@@ -177,6 +184,8 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 		// Let subclasses do whatever initialization they like.
 		// 调用子类的 initServletBean进行具体的初始化
 		// 即 FrameworkServlet 中的 initServletBean 方法
+		// 留给子类扩展
+		// STEPINTO ✨ FrameworkServlet 中
 		initServletBean();
 
 		if (logger.isDebugEnabled()) {
