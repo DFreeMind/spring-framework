@@ -126,7 +126,8 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 		String lookupPath = getUrlPathHelper().getLookupPathForRequest(request);
 		// 将得到的 URL 路径与 Handler 进行匹配，得到对应的 Handler，
 		// 如果没有对应的 Hanlder，返回 null，这样默认的 Handler 会被使用
-		// STEPINTO 分析查找过程
+		// 根据路径寻找Handle 🏷
+		// STEPINTO ✨ 分析查找过程
 		Object handler = lookupHandler(lookupPath, request);
 		if (handler == null) {
 			// We need to care for the default handler directly, since we need to
@@ -134,18 +135,23 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 			// 这里需要注意的是对默认 handler 的处理
 			Object rawHandler = null;
 			if ("/".equals(lookupPath)) {
+				// 如果请求的路径仅仅是"/"，那么使用RootHandler进行处理
 				rawHandler = getRootHandler();
 			}
 			if (rawHandler == null) {
+				// 无法找到handler则使用默认handler
 				rawHandler = getDefaultHandler();
 			}
 			if (rawHandler != null) {
 				// Bean name or resolved handler?
+				// 根据beanName获取对应的bean
 				if (rawHandler instanceof String) {
 					String handlerName = (String) rawHandler;
 					rawHandler = obtainApplicationContext().getBean(handlerName);
 				}
+				// 模版方法
 				validateHandler(rawHandler, request);
+				// 🍉
 				handler = buildPathExposingHandler(rawHandler, lookupPath, lookupPath, null);
 			}
 		}
@@ -176,6 +182,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 	// lookupHandler 根据 URL 路径启动在 handlerMap 中对 handler 的检索，并最终返回 handler 对象
 	protected Object lookupHandler(String urlPath, HttpServletRequest request) throws Exception {
 		// Direct match?
+		// 直接匹配情况
 		Object handler = this.handlerMap.get(urlPath);
 		if (handler != null) {
 			// Bean name or resolved handler?
@@ -188,6 +195,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 		}
 
 		// Pattern match?
+		// 通配符匹配处理
 		List<String> matchingPatterns = new ArrayList<>();
 		for (String registeredPattern : this.handlerMap.keySet()) {
 			if (getPathMatcher().match(registeredPattern, urlPath)) {
@@ -241,6 +249,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 			if (logger.isDebugEnabled()) {
 				logger.debug("URI Template variables for request [" + urlPath + "] are " + uriTemplateVariables);
 			}
+			// 🍉
 			return buildPathExposingHandler(handler, bestMatch, pathWithinMapping, uriTemplateVariables);
 		}
 
@@ -270,6 +279,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 	 * @param uriTemplateVariables the URI template variables, can be {@code null} if no variables found
 	 * @return the final handler object
 	 */
+	// 函数最主要的目的是将配置中的对应拦截器加入到执行链中，以保证这些拦截器可以有效地作用于目标对象。
 	protected Object buildPathExposingHandler(Object rawHandler, String bestMatchingPattern,
 			String pathWithinMapping, @Nullable Map<String, String> uriTemplateVariables) {
 

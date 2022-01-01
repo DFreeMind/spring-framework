@@ -952,7 +952,7 @@ public class DispatcherServlet extends FrameworkServlet {
 
 		try {
 			// 分发请求入口
-			// STEPINTO 分析请求处理的实际过程 important
+			// STEPINTO 🌙 分析请求处理的实际过程 important
 			doDispatch(request, response);
 		}
 		finally {
@@ -996,14 +996,18 @@ public class DispatcherServlet extends FrameworkServlet {
 			Exception dispatchException = null;
 
 			try {
+				// 如果是MultipartContent类型的request则转换
+				// request为MultipartHttpServletRequest类型的request
+				// STEPINTO 🍉
 				processedRequest = checkMultipart(request);
 				multipartRequestParsed = (processedRequest != request);
 
 				// Determine handler for the current request.
 				// 根据请求得到对应的 handler， handler的注册以及 getHandler的实现
-				// STEPINTO 分析取得 handler 的过程
+				// STEPINTO ✨ 分析取得 handler 的过程
 				mappedHandler = getHandler(processedRequest);
 				if (mappedHandler == null) {
+					// 如果没有找到对应的handler则通过response反馈错误信息
 					noHandlerFound(processedRequest, response);
 					return;
 				}
@@ -1012,12 +1016,15 @@ public class DispatcherServlet extends FrameworkServlet {
 				// 这里是实际调用 handler的地方，在执行 handler之前，
 				// 用 HandlerAdapter先检查一下 handler的合法性：是不是按 Spring的要求编写的 handler
 				// handler处理的结果封装到 ModelAndView对象中，为视图提供展现数据
+				// 🍉
 				HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());
 
 				// Process last-modified header, if supported by the handler.
+				// 如果当前handler支持last-modified头处理
 				String method = request.getMethod();
 				boolean isGet = "GET".equals(method);
 				if (isGet || "HEAD".equals(method)) {
+					// 缓存处理
 					long lastModified = ha.getLastModified(request, mappedHandler.getHandler());
 					if (logger.isDebugEnabled()) {
 						logger.debug("Last-Modified value for [" + getRequestUri(request) + "] is: " + lastModified);
@@ -1035,12 +1042,14 @@ public class DispatcherServlet extends FrameworkServlet {
 				// Actually invoke the handler.
 				// 通过调用 HandleAdapter的 handle方法，
 				// 实际上触发对 Controller的 handleRequest方法的调用
+				// 真正的激活handler并返回视图
+				// STEPINTO 🍇 在 SimpleControllerHandlerAdapter
 				mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
 
 				if (asyncManager.isConcurrentHandlingStarted()) {
 					return;
 				}
-				// STEPINTO 判断是否需要进行视图名的翻译和转换
+				// STEPINTO ✨ 判断是否需要进行视图名的翻译和转换
 				applyDefaultViewName(processedRequest, mv);
 				// 后置处理
 				mappedHandler.applyPostHandle(processedRequest, response, mv);
@@ -1055,7 +1064,7 @@ public class DispatcherServlet extends FrameworkServlet {
 			}
 			// 使用视图对 ModelAndView 数据进行展示
 			// 通过 render 来完成对视图的渲染
-			// STEPINTO 分析 reader
+			// STEPINTO ✨✨ 分析 reader, 异常试图的处理
 			processDispatchResult(processedRequest, response, mappedHandler, mv, dispatchException);
 		}
 		catch (Exception ex) {
@@ -1112,6 +1121,7 @@ public class DispatcherServlet extends FrameworkServlet {
 			}
 			else {
 				Object handler = (mappedHandler != null ? mappedHandler.getHandler() : null);
+				// STEPINTO ✨ 异常试图的处理
 				mv = processHandlerException(request, response, handler, exception);
 				errorView = (mv != null);
 			}
@@ -1119,8 +1129,8 @@ public class DispatcherServlet extends FrameworkServlet {
 
 		// Did the handler return a view to render?
 		if (mv != null && !mv.wasCleared()) {
-			// LUQIUDO
-			// STEPINTO 分析视图渲染过程
+			// 处理页面跳转
+			// STEPINTO ✨ 分析视图渲染过程
 			render(mv, request, response);
 			if (errorView) {
 				WebUtils.clearErrorRequestAttributes(request);
@@ -1139,6 +1149,7 @@ public class DispatcherServlet extends FrameworkServlet {
 		}
 
 		if (mappedHandler != null) {
+			// STEPINTO ✨ 完成处理激活触发器
 			mappedHandler.triggerAfterCompletion(request, response, null);
 		}
 	}
@@ -1168,6 +1179,9 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * @return the processed request (multipart wrapper if necessary)
 	 * @see MultipartResolver#resolveMultipart
 	 */
+	// 对于请求的处理，Spring首先考虑的是对于Multipart的处理，
+	// 如果是MultipartContent类型的request，
+	// 则转换request为MultipartHttpServletRequest类型的request。
 	protected HttpServletRequest checkMultipart(HttpServletRequest request) throws MultipartException {
 		if (this.multipartResolver != null && this.multipartResolver.isMultipart(request)) {
 			if (WebUtils.getNativeRequest(request, MultipartHttpServletRequest.class) != null) {
@@ -1241,6 +1255,7 @@ public class DispatcherServlet extends FrameworkServlet {
 					logger.trace(
 							"Testing handler map [" + hm + "] in DispatcherServlet with name '" + getServletName() + "'");
 				}
+				// ✨ 在 AbstractHandlerMapping 中实现
 				HandlerExecutionChain handler = hm.getHandler(request);
 				if (handler != null) {
 					return handler;
@@ -1313,6 +1328,7 @@ public class DispatcherServlet extends FrameworkServlet {
 		ModelAndView exMv = null;
 		if (this.handlerExceptionResolvers != null) {
 			for (HandlerExceptionResolver handlerExceptionResolver : this.handlerExceptionResolvers) {
+				//
 				exMv = handlerExceptionResolver.resolveException(request, response, handler, ex);
 				if (exMv != null) {
 					break;
@@ -1365,7 +1381,7 @@ public class DispatcherServlet extends FrameworkServlet {
 		if (viewName != null) {
 			// We need to resolve the view name.
 			// 需要对视图名进行解析, 通过解析视图的逻辑名得到视图对象
-			// STEPINTO 解析视图过程
+			// STEPINTO ✨✨ 解析视图过程
 			view = resolveViewName(viewName, mv.getModelInternal(), locale, request);
 			if (view == null) {
 				throw new ServletException("Could not resolve view with name '" + mv.getViewName() +
@@ -1392,6 +1408,7 @@ public class DispatcherServlet extends FrameworkServlet {
 				response.setStatus(mv.getStatus().value());
 			}
 			// 调用 view实现对数据进行呈现，并通过 HttpResponse把视图呈现给 HTTP客户端
+			// STEPINTO ✨ 实现在 AbstractView 中
 			view.render(mv.getModelInternal(), request, response);
 		}
 		catch (Exception ex) {
@@ -1439,7 +1456,7 @@ public class DispatcherServlet extends FrameworkServlet {
 			for (ViewResolver viewResolver : this.viewResolvers) {
 				// 解析过程, 可参考常见的 BeanNameViewResovler 的 resolveViewName
 				// BeanNameViewResolver 实现了 ViewResoler 接口
-				// STEPINTO 分析从上下文中解析视图
+				// STEPINTO ✨ 分析从上下文中解析视图(AbstractCachingViewResolver 和 BeanNameViewResolver)
 				View view = viewResolver.resolveViewName(viewName, locale);
 				if (view != null) {
 					return view;

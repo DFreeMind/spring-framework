@@ -356,13 +356,15 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 		// 这个方法接受HTTP请求作为参数，它的实现在 AbstractHandlerMapping 的子类
 		// AbstractUrlHandlerMapping 中，这个实现过程包括从HTTP请求中得到URL，
 		// 并根据URL到urlMapping中获得handler
-		// STEPINTO 分析 handler 获取过程
+		// STEPINTO ✨✨ 根据request获取对应的handler, AbstractUrlHandlerMapping
 		Object handler = getHandlerInternal(request);
 		// 使用默认的 Handler,也就是 "/"对应的 handler
 		if (handler == null) {
+			// 如果没有对应request的handler则使用默认的handler
 			handler = getDefaultHandler();
 		}
 		if (handler == null) {
+			// 如果也没有提供默认的handler则无法继续处理返回null
 			return null;
 		}
 		// Bean name or resolved handler?

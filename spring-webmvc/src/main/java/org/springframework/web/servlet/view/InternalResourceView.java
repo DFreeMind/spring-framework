@@ -141,7 +141,7 @@ public class InternalResourceView extends AbstractUrlBasedView {
 
 		// Expose the model object as request attributes.
 		// 对数据进行处理，把模型对象存放到 ServletContext 中
-		// STEPINTO
+		// STEPINTO 根据request获取对应的handler
 		exposeModelAsRequestAttributes(model, request);
 
 		// Expose helpers as request attributes, if any.
