@@ -262,6 +262,7 @@ public class ContextLoader {
 	public WebApplicationContext initWebApplicationContext(ServletContext servletContext) {
 		// 判断在 ServletContext中是否已经有根上下文存在
 		if (servletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE) != null) {
+			// web.xml中存在多次ContextLoader定义
 			throw new IllegalStateException(
 					"Cannot initialize context because there is already a root application context present - " +
 					"check whether you have multiple ContextLoader* definitions in your web.xml!");
@@ -281,7 +282,7 @@ public class ContextLoader {
 				// 这里创建在 ServletContext中存储的根上下文 ROOT_WEB_APPLICATION_CONTEXT，
 				// 同时把它存到 ServletContext中去，注意这里使用的 ServletContext的属性值是
 				// ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE，以后的应用都是根据这个属性值取得根上下文的
-				// STEPINTO
+				// STEPINTO 🌙 初始化 context
 				this.context = createWebApplicationContext(servletContext);
 			}
 			if (this.context instanceof ConfigurableWebApplicationContext) {
@@ -299,6 +300,7 @@ public class ContextLoader {
 					configureAndRefreshWebApplicationContext(cwac, servletContext);
 				}
 			}
+			// 记录在 ServletContext 中
 			servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.context);
 
 			ClassLoader ccl = Thread.currentThread().getContextClassLoader();
@@ -346,7 +348,7 @@ public class ContextLoader {
 	 */
 	protected WebApplicationContext createWebApplicationContext(ServletContext sc) {
 		// 判断使用什么样的类在 Web容器中作为 IoC容器
-		// STEPINTO
+		// STEPINTO 🍉
 		Class<?> contextClass = determineContextClass(sc);
 		if (!ConfigurableWebApplicationContext.class.isAssignableFrom(contextClass)) {
 			throw new ApplicationContextException("Custom context class [" + contextClass.getName() +
