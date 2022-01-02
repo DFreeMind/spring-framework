@@ -73,7 +73,9 @@ class RmiInvocationWrapper implements RmiInvocationHandler {
 	@Nullable
 	public Object invoke(RemoteInvocation invocation)
 		throws RemoteException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-
+		// 此时this.RMIExporter为之前初始化的RmiServiceExporter，
+		// invocation为包含着需要激活的方法参数，而wrappedObject则是之前封装的代理类
+		// STEPINTO ✨ invoke
 		return this.rmiExporter.invoke(invocation, this.wrappedObject);
 	}
 

@@ -68,6 +68,8 @@ public class RemoteInvocationTraceInterceptor implements MethodInterceptor {
 
 
 	@Override
+	// LUQIUDO
+	// RMI 服务激活调用
 	public Object invoke(MethodInvocation invocation) throws Throwable {
 		Method method = invocation.getMethod();
 		if (logger.isDebugEnabled()) {
