@@ -58,9 +58,15 @@ import org.springframework.util.Assert;
  * @see org.springframework.remoting.caucho.HessianProxyFactoryBean
  * @see org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean
  */
-// LUQIUDO
+
+/**
+ * 当获取该bean时，首先通过afterPropertiesSet创建代理类，并使用当前类作为增强方法，
+ * 而在调用该bean时其实返回的是代理类，既然调用的是代理类，那么又会使用当前bean作为增强器进行增强，
+ * 也就是说会调用RMIProxy FactoryBean的父类RMIClientInterceptor的invoke方法。
+ */
+// LUQIUDO ☀️
 // RMI客户端基础设施的封装是由拦截器RmiClientInterceptor来完成的，
-// 这个拦截器的设置是在RmiProxyFactoryBean生成的代理对象中完成的
+// 这个拦截器的设置是在RmiProxyFactoryBean生成的代理对象中完成
 public class RmiProxyFactoryBean extends RmiClientInterceptor implements FactoryBean<Object>, BeanClassLoaderAware {
 
 	// 通过ProxyFactory生成的代理对象，代理对象的代理方法和拦截器都会在其生成时设置好
@@ -70,20 +76,31 @@ public class RmiProxyFactoryBean extends RmiClientInterceptor implements Factory
 	@Override
 	// 在依赖注入完成以后，容器回调afterPropertiesSet，
 	// 通过ProxyFactory生成代理对象，这个代理对象的拦截器是RmiClientInterceptor
+	// 实现了InitializingBean，🏷
+	// 则Spring会确保在此初始化bean时调用afterPropertiesSet进行逻辑的初始化
 	public void afterPropertiesSet() {
-		// STEPINTO
+		// STEPINTO ✨
 		super.afterPropertiesSet();
 		Class<?> ifc = getServiceInterface();
 		Assert.notNull(ifc, "Property 'serviceInterface' is required");
+		// 根据设置的接口创建代理，并使用当前类this作为增强器
 		this.serviceProxy = new ProxyFactory(ifc, this).getProxy(getBeanClassLoader());
 	}
 
 
 	@Override
 	// FactoryBean的接口方法，返回生成的代理对象serviceProxy
+	// 实现了FactoryBean接口，🏷
+	// 那么当获取bean时并不是直接获取bean，而是获取该bean的getObject方法。
 	public Object getObject() {
 		return this.serviceProxy;
 	}
+
+	/**
+	 * 在初始化时，创建了代理并将本身作为增强器加入了代理中（RMIProxyFactoryBean间接实现了MethodInterceptor）。
+	 * 那么这样一来，当在客户端调用代理的接口中的某个方法时，
+	 * 就会首先执行RMIProxyFactoryBean中的invoke方法进行增强。实际在 RmiClientInterceptor 中
+	 */
 
 	@Override
 	public Class<?> getObjectType() {
